@@ -1,0 +1,9 @@
+vibe-harness
+
+The skills, templates, and scripts in this repository are distilled from the
+agent workflows of DeepSeek Harness (https://github.com/deepseek-ai/deepseek-harness),
+Copyright (c) 2026 DeepSeek, released under the MIT License.
+
+Project-specific names, paths, commands, and examples were removed or replaced
+with project-neutral equivalents. skills/record-browser-gif/scripts/encode_gif.py
+and its test are carried over with minimal changes.

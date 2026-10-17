@@ -1,0 +1,16 @@
+{
+  "name": "vibe-harness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent skills and governance templates that give AI-coded projects engineering discipline.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node --test scripts/check.test.mjs scripts/vh.test.mjs",
+    "vh": "node scripts/vh.mjs"
+  }
+}

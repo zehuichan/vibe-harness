@@ -1,0 +1,41 @@
+{
+  "name": "vibe-harness",
+  "version": "0.1.0",
+  "repository": "https://github.com/zehuichan/vibe-harness",
+  "variables": ["PROJECT_NAME"],
+  "skills": {
+    "vibe-harness-bootstrap": { "tier": "core" },
+    "error-handling": { "tier": "core" },
+    "prose-standard": { "tier": "core" },
+    "trim-cot-leakage": { "tier": "core" },
+    "test-reliability": { "tier": "core" },
+    "find-simplifications": { "tier": "core" },
+    "code-review": { "tier": "core" },
+    "pre-push-checks": { "tier": "core" },
+    "perf-evidence": { "tier": "core" },
+    "agent-experience": { "tier": "core" },
+    "lifecycle-review": { "tier": "core" },
+    "agent-notes": { "tier": "core" },
+    "docs-standard": { "tier": "core" },
+    "upgrade-guide": { "tier": "core" },
+    "ui-ux-review": { "tier": "optional", "when": "surfaces.ui" },
+    "responsive-ui": { "tier": "optional", "when": "surfaces.ui" },
+    "record-browser-gif": { "tier": "optional", "when": "surfaces.ui" },
+    "stacked-prs": { "tier": "optional", "when": "vcs.host == github" }
+  },
+  "templates": [
+    { "source": "templates/AGENTS.md.tmpl", "target": "AGENTS.md", "mode": "block" },
+    { "source": "templates/gitignore.tmpl", "target": ".gitignore", "mode": "block" },
+    { "source": "templates/CLAUDE.md.tmpl", "target": "CLAUDE.md", "mode": "seed" },
+    { "source": "templates/project-profile.md.tmpl", "target": ".agents/project-profile.md", "mode": "seed" },
+    { "source": "templates/agent-notes/README.md", "target": ".agents/notes/README.md", "mode": "managed" },
+    { "source": "templates/agent-notes/AGENTS.md", "target": ".agents/notes/AGENTS.md", "mode": "managed" },
+    { "source": "templates/agent-notes/implemented/AGENTS.md", "target": ".agents/notes/implemented/AGENTS.md", "mode": "managed" },
+    { "source": "templates/agent-notes/archived/AGENTS.md", "target": ".agents/notes/archived/AGENTS.md", "mode": "managed" },
+    { "source": "templates/agent-notes/proposed/.gitkeep", "target": ".agents/notes/proposed/.gitkeep", "mode": "seed" },
+    { "source": "templates/agent-notes/rejected/.gitkeep", "target": ".agents/notes/rejected/.gitkeep", "mode": "seed" },
+    { "source": "templates/defensive-patterns/README.md", "target": "docs/defensive-patterns/README.md", "mode": "managed" },
+    { "source": "templates/defensive-patterns/general.md", "target": "docs/defensive-patterns/general.md", "mode": "managed" },
+    { "source": "templates/docs-AGENTS.md", "target": "docs/AGENTS.md", "mode": "managed" }
+  ]
+}

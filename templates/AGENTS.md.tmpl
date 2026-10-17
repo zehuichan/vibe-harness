@@ -1,0 +1,33 @@
+## Working agreement (vibe-harness)
+
+These standing orders apply to every agent session. Project facts (commands, enabled surfaces, evidence per surface) live in the [project profile](.agents/project-profile.md); reusable workflows live in [.agents/skills/](.agents/skills/). Put project-specific rules outside this managed block: `vibe-harness` upgrades rewrite only the text between its markers.
+
+### Evidence
+
+- Run the narrowest check that would fail for the regression you are preventing. Leave exhaustive coverage to CI unless the user asks or the change is genuinely repository-wide. Before pushing, follow `pre-push-checks`; report only commands you actually ran.
+- Tests describe behavior. When behavior changes on purpose, change its tests and state why in the pull request.
+- Put every mechanically checkable rule into an executed check, and prove each new or changed check rejects an invalid case.
+- A change that can move the cost of a hot path carries before-and-after measurements (`perf-evidence`).
+
+### Design
+
+- Explicit beats implicit at module and package boundaries. Defaulting is an explicit resolve step owned by the implementation, never a hidden fallback inside the operation.
+- Deployment-varying choices are validated configuration, not hardcoded constants or test hooks. Protocol constants, external specifications, and security invariants stay fixed.
+- Misconfiguration fails loudly at load when it is self-contained, otherwise at the earliest point where it can be resolved. Never silently skip a missing referent.
+- Trust the type system at typed same-process boundaries. Validate at parsers, configuration, queues, model or tool JSON, files, workers, processes, and wire boundaries.
+- Shared state has one named owner with a lifecycle; do not add module-level singletons or global caches. Registrations return their disposers, and teardown awaits quiescence (`lifecycle-review`).
+- New behavior attaches through an existing extension point instead of adding a business branch to a central runtime, controller, or dispatcher.
+- Prefer a maintained dependency when it genuinely deletes owned code and tests.
+- Prefer symmetry for parallel values; unexplained asymmetry usually signals a missed extraction.
+- Failures are typed and structured, with a handling owner, containment, and a visible, actionable report (`error-handling`). An empty `catch` names the error and the reason, and its `try` holds one statement.
+
+### Prose
+
+- Comments and documentation state complete current contracts (behavior, failure, timing, ownership), not reasoning transcripts, change history, or review dialogue (`prose-standard`, `trim-cot-leakage`).
+- Each fact has one home; elsewhere, link to it ([documentation standard](docs/AGENTS.md), `docs-standard`).
+- Record durable decision rationale (what was chosen, what lost, and what it cost) as an [Agent Note](.agents/notes/README.md) (`agent-notes`). Mechanical and local edits are exempt.
+- Record every externally perceptible breaking change in an upgrade guide in the same change (`upgrade-guide`).
+
+### Before changing code
+
+Read the [defensive patterns](docs/defensive-patterns/README.md) page for the artifact you are changing and any active Agent Note that owns the decision. Treat disagreement with an Agent Note as a design discussion, not as permission to ignore it.

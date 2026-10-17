@@ -1,0 +1,59 @@
+---
+vibe-harness-profile: 1
+project: {{PROJECT_NAME}}
+commands:
+  install: TODO(profile)
+  focused-test: TODO(profile)
+  full-test: TODO(profile)
+  coverage: TODO(profile)
+  typecheck: TODO(profile)
+  lint: TODO(profile)
+  format: TODO(profile)
+  build: TODO(profile)
+  docs-check: TODO(profile)
+  e2e: TODO(profile)
+  bench: TODO(profile)
+  change-scope: git diff --name-status <base>...HEAD
+vcs:
+  host: TODO(profile)
+  default-branch: TODO(profile)
+  pr-cli: TODO(profile)
+surfaces:
+  ui: false
+  localized-ui: false
+  bilingual-docs: false
+  public-api: false
+---
+
+# Project profile: {{PROJECT_NAME}}
+
+This file holds the project facts that the vibe-harness skills read: commands, version-control host, and enabled surfaces. Skills stay project-neutral and refer to these keys, for example "the profile's `commands.focused-test`". Keep every value verified against the repository; replace `TODO(profile)` only with a command you ran or a fact you confirmed, and write `none` when the project has no such command.
+
+## Keys
+
+- `commands.*`: exact shell commands run from the repository root. Use `<target>` for a test file or name, `<base>` for a base ref, and `<file>` for a path. `focused-test` runs one test file or test name; `full-test` runs the whole unit suite; `docs-check` validates documentation; `change-scope` lists changed paths against a verified base.
+- `vcs.host`: `github`, `gitlab`, or `other`. `vcs.pr-cli`: `gh`, `glab`, or `none`.
+- `surfaces.ui`: the project ships a user-visible GUI. Enables `ui-ux-review`, `responsive-ui`, and `record-browser-gif`.
+- `surfaces.localized-ui`: user-visible copy goes through a locale mechanism; reviews reject hardcoded copy.
+- `surfaces.bilingual-docs`: documentation is maintained as paired translations that must stay aligned.
+- `surfaces.public-api`: something outside the repository depends on the project (published packages, CLI flags, configuration keys, wire formats, persisted user data). Breaking changes need upgrade guides.
+
+## Evidence by surface
+
+Map each kind of change to the narrowest evidence that would fail for its regression. `pre-push-checks` selects from this table.
+
+| Change touches | Required evidence |
+|---|---|
+| Source behavior | `commands.focused-test` on the owning tests |
+| Public types or exports | `commands.typecheck`, then `commands.build` |
+| Documentation | `commands.docs-check` and `git diff --check` |
+| User-visible output | TODO(profile): the snapshot or end-to-end test that owns it |
+| Build, packaging, or entry points | `commands.build` and a smoke run of the built artifact |
+
+## Hooks and CI
+
+TODO(profile): which git hooks run locally, which CI workflows run on pull requests, and which platforms CI covers.
+
+## Project-specific rules
+
+TODO(profile): rules that apply only to this project, such as protected designs that simplification work must not remove, required reviewers for design changes, or release procedures. Link the owning document instead of restating it.
