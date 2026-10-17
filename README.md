@@ -78,7 +78,7 @@ npm run check   # manifest, skill frontmatter, links at installed paths, placeho
 npm test        # check rules (with a rejected case for each) and installer behavior
 ```
 
-Keep skills project-neutral: name project facts through profile keys, and never link an optional skill from a core skill or a template, because it may not be installed. To release, bump `version` in `manifest.json` and `package.json`, add a [CHANGELOG](CHANGELOG.md) entry that names any seed-template change, and push a `vX.Y.Z` tag.
+Keep skills project-neutral: name project facts through profile keys, and never link an optional skill from a core skill or a template, because it may not be installed. To bring an update across from the source project, have an agent follow [DISTILL.md](DISTILL.md). To release, bump `version` in `manifest.json` and `package.json`, add a [CHANGELOG](CHANGELOG.md) entry that names any seed-template change, and push a `vX.Y.Z` tag.
 
 ## License
 

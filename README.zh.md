@@ -78,7 +78,7 @@ npm run check   # manifest、技能 frontmatter、按安装路径解析的链接
 npm test        # 检查规则（每条都有被拒绝的用例）与安装器行为
 ```
 
-技能保持与具体项目无关：项目事实一律通过 profile 键表达；核心技能和模板不得链接可选技能，因为它可能没有安装。发布时，更新 `manifest.json` 和 `package.json` 的 `version`，在 [CHANGELOG](CHANGELOG.md) 中新增条目并写明种子模板的变化，然后推送 `vX.Y.Z` 标签。
+技能保持与具体项目无关：项目事实一律通过 profile 键表达；核心技能和模板不得链接可选技能，因为它可能没有安装。要把源项目的更新提炼进来，让 agent 按 [DISTILL.md](DISTILL.md) 做。发布时，更新 `manifest.json` 和 `package.json` 的 `version`，在 [CHANGELOG](CHANGELOG.md) 中新增条目并写明种子模板的变化，然后推送 `vX.Y.Z` 标签。
 
 ## 许可证
 
