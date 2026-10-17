@@ -102,8 +102,7 @@ function loadManifest() {
 }
 
 function kitInfo(manifest) {
-  const toplevel = git(['rev-parse', '--show-toplevel'], KIT_ROOT)?.trim()
-  const isKitRepo = toplevel !== undefined && samePath(toplevel, KIT_ROOT)
+  const isKitRepo = git(['rev-parse', '--show-prefix'], KIT_ROOT)?.trim() === ''
   const commit = isKitRepo ? git(['rev-parse', 'HEAD'], KIT_ROOT)?.trim() ?? null : null
   const tag = isKitRepo ? git(['describe', '--tags', '--exact-match', 'HEAD'], KIT_ROOT)?.trim() ?? null : null
   return { repository: manifest.repository, version: manifest.version, ref: tag ?? commit ?? 'unversioned', commit }
@@ -274,8 +273,19 @@ function makeOldReader(commit, vars) {
   }
 }
 
-const samePath = (a, b) =>
-  process.platform === 'win32' ? path.resolve(a).toLowerCase() === path.resolve(b).toLowerCase() : path.resolve(a) === path.resolve(b)
+/** Compares paths after resolving symlinks and Windows 8.3 short names when both paths exist. */
+function samePath(a, b) {
+  const canonical = (p) => {
+    try {
+      return fs.realpathSync.native(p)
+    } catch (error) {
+      if (error.code === 'ENOENT') return path.resolve(p)
+      throw error
+    }
+  }
+  const [left, right] = [canonical(a), canonical(b)]
+  return process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right
+}
 
 function symlinksEnabled(target) {
   const value = git(['config', '--get', 'core.symlinks'], target)?.trim()
