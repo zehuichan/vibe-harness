@@ -242,6 +242,56 @@ describe('upgrade', () => {
 })
 
 describe('Claude Code skills', () => {
+  test('auto records one symlink when core.symlinks is false and never copies skills', () => {
+    git(repo, 'config', 'core.symlinks', 'false')
+    const planned = vh('install', '--dry-run')
+    assert.equal(planned.status, 0, planned.out)
+    assert.match(planned.out, /link\s+\.claude\/skills/)
+    assert.doesNotMatch(planned.out, /mirror/)
+
+    const result = vh('install')
+    assert.equal(result.status, 0, result.out)
+    assert.equal(readLock().claude, 'symlink')
+    assert.deepEqual(readLock().mirrors, [])
+    const stat = fs.lstatSync(repoFile('.claude/skills'))
+    assert.equal(stat.isDirectory(), false)
+    if (stat.isSymbolicLink()) {
+      assert.equal(fs.readlinkSync(repoFile('.claude/skills')).replaceAll('\\', '/'), '../.agents/skills')
+    } else {
+      assert.equal(fs.readFileSync(repoFile('.claude/skills'), 'utf8'), '../.agents/skills')
+      const recorded = git(repo, 'ls-files', '-s', '--', '.claude/skills')
+      assert.match(recorded, /^120000 2b7a412b8fa0fb7e985b0793321bd4e698f2b6cd /)
+      git(repo, 'add', '-A')
+      assert.equal(git(repo, 'ls-files', '-s', '--', '.claude/skills'), recorded)
+    }
+    assert.doesNotMatch(vh('status').out, /missing\s+\.claude\/skills/)
+
+    writeRepo('.agents/skills/own/SKILL.md', 'Project skill.\n')
+    assert.equal(vh('uninstall').status, 0)
+    assert.equal(fs.existsSync(repoFile('.claude/skills')), false)
+    assert.equal(git(repo, 'ls-files', '--', '.claude/skills'), '')
+    assert.equal(readRepo('.agents/skills/own/SKILL.md'), 'Project skill.\n')
+  })
+
+  test('symlink mode refuses a skill directory it does not own', () => {
+    writeRepo('.claude/skills/error-handling/SKILL.md', 'mine\n')
+    const result = vh('install', '--claude', 'symlink')
+    assert.equal(result.status, 2, result.out)
+    assert.match(result.out, /CONFLICT\s+\.claude\/skills\b/)
+    assert.equal(fs.existsSync(repoFile('.agents')), false)
+  })
+
+  test('upgrade --claude symlink replaces mirrors with one link', () => {
+    assert.equal(vh('install', '--claude', 'mirror').status, 0)
+    const result = vh('upgrade', '--claude', 'symlink')
+    assert.equal(result.status, 0, result.out)
+    assert.equal(readLock().claude, 'symlink')
+    assert.deepEqual(readLock().mirrors, [])
+    assert.equal(fs.lstatSync(repoFile('.claude/skills')).isDirectory(), false)
+    assert.equal(fs.existsSync(repoFile('.agents/skills/error-handling/SKILL.md')), true)
+    assert.doesNotMatch(vh('status').out, /missing\s+\.claude\/skills/)
+  })
+
   test('mirror mode copies skills, reports stale mirrors, and refreshes them on upgrade', () => {
     assert.equal(vh('install', '--claude', 'mirror').status, 0)
     assert.equal(readRepo('.claude/skills/error-handling/SKILL.md'), readRepo('.agents/skills/error-handling/SKILL.md'))

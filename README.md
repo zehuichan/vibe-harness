@@ -62,7 +62,7 @@ Governance files:
 - **Skills stay generic; the profile adapts them.** Skills refer to profile keys such as `commands.focused-test` or `surfaces.ui` instead of naming a toolchain, so one skill text serves a Node.js, Python, or Go repository.
 - **The repository owns its copy.** Files are copied, not referenced, so the project can edit any of them. `.agents/vibe-harness.lock.json` records the kit version and the upstream hash of every managed file.
 - **Upgrades keep local edits.** An unmodified file is replaced. An edited file is three-way merged with `git merge-file`, using the previously installed kit version as the base; overlapping edits are left as conflict markers for the agent to resolve. Seed files such as the profile are never overwritten, and `AGENTS.md` is rewritten only between its `vibe-harness` markers.
-- **Every agent finds the skills.** Cursor and Codex read `.agents/skills/`. Claude Code reads `.claude/skills/`, which the installer creates as a symlink or, where symlinks are unavailable (common on Windows), as per-skill copies refreshed on each upgrade.
+- **Every agent finds the skills.** Cursor and Codex read `.agents/skills/`. Claude Code reads `.claude/skills/`, one symlink to `../.agents/skills` (git mode 120000). The installer does not copy skills there. When the OS cannot create the directory link, the working tree file contains the link text and the git index records the symlink; a checkout with `core.symlinks=false` is that same text file. `--claude mirror` copies each skill only when that mode is requested.
 
 ## Other ways to install
 

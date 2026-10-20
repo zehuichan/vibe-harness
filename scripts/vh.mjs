@@ -23,6 +23,9 @@ const LOCK_FILE = '.agents/vibe-harness.lock.json'
 const PROFILE_FILE = '.agents/project-profile.md'
 const SKILLS_DIR = '.agents/skills'
 const CLAUDE_SKILLS_DIR = '.claude/skills'
+/** Git symlink blob for `.claude/skills`. No trailing newline. */
+const CLAUDE_LINK_TEXT = '../.agents/skills'
+const SYMLINK_UNAVAILABLE = new Set(['EPERM', 'EACCES', 'ENOTSUP'])
 const LOCK_VERSION = 1
 const EXIT_CONFLICT = 2
 const CLAUDE_MODES = ['auto', 'symlink', 'mirror', 'none']
@@ -40,7 +43,7 @@ Options:
   --optional <a,b>      install: optional skills to include.
   --add <a,b>           upgrade: optional skills to add.
   --remove <a,b>        upgrade: optional skills to remove.
-  --claude <mode>       auto | symlink | mirror | none (default: auto on install, previous mode on upgrade).
+  --claude <mode>       auto | symlink | mirror | none. auto (the install default) is one symlink to ../.agents/skills; upgrade keeps the recorded mode.
   --var NAME=value      Template variable, for example --var PROJECT_NAME=acme.
   --dry-run             Report planned actions without writing.
   --skip-conflicts      install: write everything except conflicting paths.
@@ -287,23 +290,86 @@ function samePath(a, b) {
   return process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right
 }
 
-function symlinksEnabled(target) {
-  const value = git(['config', '--get', 'core.symlinks'], target)?.trim()
-  if (value === 'false') return false
-  if (value === 'true') return true
-  return process.platform !== 'win32'
+function claudeSkillsPath(target) {
+  return path.join(target, CLAUDE_SKILLS_DIR)
+}
+
+/** `symlink` is an OS link to `.agents/skills`. `git-symlink` is the same link checked out as its text. */
+function readClaudeLink(target) {
+  const abs = claudeSkillsPath(target)
+  const stat = lstatOrNull(abs)
+  if (!stat) return { kind: 'absent' }
+  if (stat.isSymbolicLink()) {
+    const own = samePath(path.resolve(path.dirname(abs), fs.readlinkSync(abs)), path.join(target, SKILLS_DIR))
+    return { kind: own ? 'symlink' : 'foreign-link' }
+  }
+  if (stat.isFile() && fs.readFileSync(abs).equals(Buffer.from(CLAUDE_LINK_TEXT))) return { kind: 'git-symlink' }
+  if (stat.isDirectory()) return { kind: 'directory' }
+  return { kind: 'other' }
+}
+
+function indexMode(target, rel) {
+  const line = git(['ls-files', '-s', '--', rel], target)?.split('\n').find((row) => row.trim())
+  return line ? line.split(/\s+/)[0] : null
 }
 
 /**
- * Exposes installed skills under `.claude/skills` as one directory symlink or as per-skill copies.
- * Never deletes through a symlink, and never touches a `.claude/skills` link that points elsewhere.
+ * Stages `.claude/skills` as git mode 120000.
+ * `git add` of the link-text file would record a regular file when `core.symlinks` is false,
+ * so a later checkout would not be a symlink.
+ */
+function stageGitSymlink(target) {
+  const hashed = spawnSync('git', ['hash-object', '-w', '--stdin'], { cwd: target, input: CLAUDE_LINK_TEXT, encoding: 'utf8' })
+  if (hashed.status !== 0) fail(`git hash-object failed: ${hashed.stderr?.trim()}`)
+  const updated = spawnSync('git', ['update-index', '--add', '--cacheinfo', `120000,${hashed.stdout.trim()},${CLAUDE_SKILLS_DIR}`], { cwd: target, encoding: 'utf8' })
+  if (updated.status !== 0) fail(`git update-index failed: ${updated.stderr?.trim()}`)
+}
+
+function unstageClaudeLink(target) {
+  spawnSync('git', ['update-index', '--force-remove', '--', CLAUDE_SKILLS_DIR], { cwd: target, encoding: 'utf8' })
+}
+
+function removeClaudeLink(target) {
+  const abs = claudeSkillsPath(target)
+  if (lstatOrNull(abs)) fs.unlinkSync(abs)
+  unstageClaudeLink(target)
+  pruneEmptyDirs(target, CLAUDE_SKILLS_DIR)
+}
+
+function createClaudeLink(target, ctx) {
+  if (ctx.dryRun) {
+    ctx.log('link', CLAUDE_SKILLS_DIR, `-> ${CLAUDE_LINK_TEXT}`)
+    return
+  }
+  const abs = claudeSkillsPath(target)
+  fs.mkdirSync(path.dirname(abs), { recursive: true })
+  try {
+    fs.symlinkSync(CLAUDE_LINK_TEXT, abs, 'dir')
+    ctx.log('link', CLAUDE_SKILLS_DIR, `-> ${CLAUDE_LINK_TEXT}`)
+  } catch (error) {
+    if (!SYMLINK_UNAVAILABLE.has(error.code)) throw error
+    fs.writeFileSync(abs, CLAUDE_LINK_TEXT)
+    try {
+      stageGitSymlink(target)
+    } catch (stageError) {
+      fs.unlinkSync(abs)
+      throw stageError
+    }
+    ctx.log('link', CLAUDE_SKILLS_DIR, `-> ${CLAUDE_LINK_TEXT} (git symlink; directory link failed with ${error.code})`)
+  }
+}
+
+function keptClaude(previous) {
+  return { claude: previous.claude ?? 'none', mirrors: [...(previous.mirrors ?? [])] }
+}
+
+/**
+ * Exposes installed skills at `.claude/skills` as one symlink to `../.agents/skills`.
+ * `mirror` copies each skill and is used only when requested. Never deletes through a symlink,
+ * and never replaces a `.claude/skills` link that points elsewhere.
  */
 function syncClaude(target, requested, skills, previous, ctx) {
-  const dir = path.join(target, CLAUDE_SKILLS_DIR)
-  const stat = lstatOrNull(dir)
-  const isLink = stat?.isSymbolicLink() ?? false
-  const ownLink = isLink && samePath(path.resolve(path.dirname(dir), fs.readlinkSync(dir)), path.join(target, SKILLS_DIR))
-  const previousMirrors = new Set(previous.mirrors)
+  const previousMirrors = new Set(previous.mirrors ?? [])
   const dropPreviousMirrors = (keep) => {
     for (const rel of previousMirrors) {
       if (keep.includes(rel)) continue
@@ -314,48 +380,57 @@ function syncClaude(target, requested, skills, previous, ctx) {
       ctx.log('remove', rel, 'mirror no longer selected')
     }
   }
-  if (isLink && !ownLink) {
+  const link = readClaudeLink(target)
+  if (link.kind === 'foreign-link') {
     if (requested !== 'none') ctx.conflict(CLAUDE_SKILLS_DIR, 'is a symlink to another directory; Claude Code skills not configured')
     return { claude: 'none', mirrors: [] }
   }
-  let mode = requested
-  if (mode === 'auto') mode = ownLink || (!stat && symlinksEnabled(target)) ? 'symlink' : 'mirror'
+  const mode = requested === 'auto' ? 'symlink' : requested
   if (mode === 'none') {
-    if (ownLink && previous.claude === 'symlink') {
-      if (!ctx.dryRun) fs.unlinkSync(dir)
+    if ((link.kind === 'symlink' || link.kind === 'git-symlink') && previous.claude === 'symlink') {
+      if (!ctx.dryRun) removeClaudeLink(target)
       ctx.log('remove', CLAUDE_SKILLS_DIR, 'symlink')
-    } else if (!isLink) {
+    } else if (link.kind !== 'symlink') {
       dropPreviousMirrors([])
     }
     return { claude: 'none', mirrors: [] }
   }
   if (mode === 'symlink') {
-    if (ownLink) return { claude: 'symlink', mirrors: [] }
-    if (stat) {
-      ctx.log('note', CLAUDE_SKILLS_DIR, 'exists as a directory; mirroring instead of linking')
-    } else if (ctx.dryRun) {
-      ctx.log('link', CLAUDE_SKILLS_DIR, '-> ../.agents/skills')
+    if (link.kind === 'symlink') return { claude: 'symlink', mirrors: [] }
+    if (link.kind === 'git-symlink') {
+      if (!ctx.dryRun && indexMode(target, CLAUDE_SKILLS_DIR) !== '120000') stageGitSymlink(target)
       return { claude: 'symlink', mirrors: [] }
-    } else {
-      try {
-        fs.mkdirSync(path.dirname(dir), { recursive: true })
-        fs.symlinkSync(path.join('..', '.agents', 'skills'), dir, 'dir')
-        ctx.log('link', CLAUDE_SKILLS_DIR, '-> ../.agents/skills')
-        return { claude: 'symlink', mirrors: [] }
-      } catch (error) {
-        ctx.log('note', CLAUDE_SKILLS_DIR, `symlink failed (${error.code}); mirroring instead`)
-      }
     }
+    if (link.kind === 'directory') {
+      const names = fs.readdirSync(claudeSkillsPath(target))
+      if (!names.every((name) => previousMirrors.has(`${CLAUDE_SKILLS_DIR}/${name}`))) {
+        ctx.conflict(CLAUDE_SKILLS_DIR, 'exists as a directory and is not a vibe-harness mirror; remove it or pass --claude none')
+        return keptClaude(previous)
+      }
+      dropPreviousMirrors([])
+      if (!ctx.dryRun) {
+        const abs = claudeSkillsPath(target)
+        if (lstatOrNull(abs)?.isDirectory()) fs.rmdirSync(abs)
+      }
+    } else if (link.kind === 'other') {
+      ctx.conflict(CLAUDE_SKILLS_DIR, 'exists and is not a symlink to .agents/skills')
+      return keptClaude(previous)
+    }
+    createClaudeLink(target, ctx)
+    return { claude: 'symlink', mirrors: [] }
   }
-  if (ownLink) {
-    if (!ctx.dryRun) fs.unlinkSync(dir)
+  if (link.kind === 'symlink' || link.kind === 'git-symlink') {
+    if (!ctx.dryRun) removeClaudeLink(target)
     ctx.log('remove', CLAUDE_SKILLS_DIR, 'symlink replaced by mirrors')
+  } else if (link.kind === 'other') {
+    ctx.conflict(CLAUDE_SKILLS_DIR, 'exists and is not a directory of skill copies')
+    return keptClaude(previous)
   }
   const mirrors = []
   for (const name of skills) {
     const rel = `${CLAUDE_SKILLS_DIR}/${name}`
     const abs = path.join(target, rel)
-    if (!ownLink && lstatOrNull(abs) && !previousMirrors.has(rel)) {
+    if (link.kind !== 'symlink' && link.kind !== 'git-symlink' && lstatOrNull(abs) && !previousMirrors.has(rel)) {
       ctx.conflict(rel, 'exists and is not a vibe-harness mirror; not mirrored')
       continue
     }
@@ -639,8 +714,13 @@ function cmdStatus(opts) {
     else if (sha256(body) !== entry.upstream) ctx.log('modified', rel, 'managed block')
     else clean++
   }
-  if (lock.claude === 'symlink' && !lstatOrNull(path.join(target, CLAUDE_SKILLS_DIR))?.isSymbolicLink()) {
-    ctx.log('missing', CLAUDE_SKILLS_DIR, 'symlink expected')
+  if (lock.claude === 'symlink') {
+    const found = readClaudeLink(target)
+    if (found.kind === 'git-symlink' && indexMode(target, CLAUDE_SKILLS_DIR) !== '120000') {
+      ctx.log('missing', CLAUDE_SKILLS_DIR, 'link text is present but the git index does not record a symlink')
+    } else if (found.kind !== 'symlink' && found.kind !== 'git-symlink') {
+      ctx.log('missing', CLAUDE_SKILLS_DIR, 'symlink expected')
+    }
   }
   for (const rel of lock.mirrors ?? []) {
     const mirror = path.join(target, rel)

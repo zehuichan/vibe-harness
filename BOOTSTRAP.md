@@ -23,7 +23,7 @@ The installer requires git and Node.js 20 or later. It writes three kinds of fil
 
 `.agents/vibe-harness.lock.json` records the kit version, the selected skills, and the upstream hash of every managed file and block. Commit it with the installed files.
 
-Cursor and Codex read skills from `.agents/skills/`. Claude Code reads `.claude/skills/`, so the installer also exposes the skills there (`--claude`): `auto` (the default) creates a directory symlink when git's `core.symlinks` is enabled and the link succeeds, and otherwise copies each skill (mirror); `symlink`, `mirror`, and `none` force a mode. Mirrors are refreshed on every upgrade.
+Cursor and Codex read skills from `.agents/skills/`. Claude Code reads `.claude/skills/`, so the installer exposes the skills there as one symlink to `../.agents/skills` (`--claude`). `auto` (the install default) and `symlink` create that directory link. When the OS refuses it, the working tree file contains the link text `../.agents/skills` with no trailing newline, and the installer stages git mode 120000 so a later `git add` still records a symlink. A checkout with `core.symlinks=false` is that text file. `mirror` copies each skill and is used only when requested; upgrade keeps the mode recorded in the lock unless `--claude` is passed. `none` does not expose the skills to Claude Code.
 
 ## Install
 
@@ -93,4 +93,4 @@ Core skills cannot be removed. Removed skills are deleted only where their files
 
 ## Without Node.js
 
-Copy `skills/<skill>/` to `<repo>/.agents/skills/<skill>/` for each selected skill and copy each template in [manifest.json](manifest.json) to its `target`, replacing `{{PROJECT_NAME}}`. For `block` templates, wrap the content in the markers (`<!-- vibe-harness:begin -->` and `<!-- vibe-harness:end -->` in Markdown, `# vibe-harness:begin` and `# vibe-harness:end` elsewhere) and append it to the existing file. Skip the lock file. When Node.js becomes available, running `install` adopts every file that still matches the kit and reports the rest as conflicts.
+Copy `skills/<skill>/` to `<repo>/.agents/skills/<skill>/` for each selected skill and copy each template in [manifest.json](manifest.json) to its `target`, replacing `{{PROJECT_NAME}}`. For `block` templates, wrap the content in the markers (`<!-- vibe-harness:begin -->` and `<!-- vibe-harness:end -->` in Markdown, `# vibe-harness:begin` and `# vibe-harness:end` elsewhere) and append it to the existing file. Create `<repo>/.claude/skills` as a symlink to `../.agents/skills`. When the OS cannot create it, write a file whose contents are exactly `../.agents/skills` with no trailing newline and stage it with `git update-index --add --cacheinfo 120000,<blob>,.claude/skills`, where `<blob>` is `git hash-object -w` of that text. Do not copy skills into `.claude/skills/`. Skip the lock file. When Node.js becomes available, running `install` adopts every file that still matches the kit and reports the rest as conflicts.

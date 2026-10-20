@@ -62,7 +62,7 @@ agent 会克隆套件、检查仓库、询问要包含哪些可选技能、运�
 - **技能保持通用，由 profile 完成适配。** 技能引用 `commands.focused-test`、`surfaces.ui` 这类 profile 键，而不写死具体工具链，所以同一份技能文本适用于 Node.js、Python 或 Go 仓库。
 - **仓库拥有自己的副本。** 文件是复制进来的而非引用，项目可以修改其中任何一个。`.agents/vibe-harness.lock.json` 记录套件版本和每个受管文件的上游哈希。
 - **升级保留本地修改。** 未修改的文件直接替换。修改过的文件用 `git merge-file` 做三方合并，以之前安装的套件版本为基准；重叠的修改留下冲突标记，交给 agent 解决。profile 这类种子文件从不覆盖，`AGENTS.md` 只改写 `vibe-harness` 标记之间的内容。
-- **各家 agent 都能找到技能。** Cursor 和 Codex 读取 `.agents/skills/`。Claude Code 读取 `.claude/skills/`，安装器把它创建为符号链接；符号链接不可用时（Windows 上常见）改为逐个技能复制，并在每次升级时刷新。
+- **各家 agent 都能找到技能。** Cursor 和 Codex 读取 `.agents/skills/`。Claude Code 读取 `.claude/skills/`，它是指向 `../.agents/skills` 的一条符号链接（git 模式 120000）。安装器不会把技能再复制到那里。操作系统无法创建目录链接时，工作区文件的内容就是链接文本，git 索引仍记录为符号链接；`core.symlinks=false` 的检出也是这个文本文件。只有显式指定 `--claude mirror` 时才会逐个复制技能。
 
 ## 其他安装方式
 
