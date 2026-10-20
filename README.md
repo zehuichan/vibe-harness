@@ -51,7 +51,7 @@ Governance files:
 | Path | Purpose |
 |---|---|
 | `AGENTS.md` (managed block) | Standing orders for every agent session; project rules go outside the block |
-| `CLAUDE.md` | `@AGENTS.md`, so Claude Code reads the same instructions |
+| `CLAUDE.md` | Symlink to `AGENTS.md`, so Claude Code reads the same instructions |
 | `.agents/project-profile.md` | Project facts the skills read: commands, version-control host, enabled surfaces |
 | `.agents/notes/` | Agent Notes: decision records by lifecycle and class |
 | `docs/defensive-patterns/` | Review rules that prevent recurring defects |

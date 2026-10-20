@@ -51,7 +51,7 @@ agent 会克隆套件、检查仓库、询问要包含哪些可选技能、运�
 | 路径 | 用途 |
 |---|---|
 | `AGENTS.md`（受管区块） | 每个 agent 会话都要遵守的常设规则；项目规则写在区块之外 |
-| `CLAUDE.md` | 内容为 `@AGENTS.md`，让 Claude Code 读取同一份指令 |
+| `CLAUDE.md` | 指向 `AGENTS.md` 的符号链接，让 Claude Code 读取同一份指令 |
 | `.agents/project-profile.md` | 技能读取的项目事实：命令、代码托管平台、启用的界面类别 |
 | `.agents/notes/` | Agent Notes：按生命周期和类别存放的决策记录 |
 | `docs/defensive-patterns/` | 防止缺陷反复出现的审查规则 |

@@ -19,7 +19,8 @@ The installer requires git and Node.js 20 or later. It writes three kinds of fil
 |---|---|---|
 | Managed | `.agents/skills/<skill>/**`, `.agents/notes/README.md` and its `AGENTS.md` files, `docs/defensive-patterns/*.md`, `docs/AGENTS.md` | Replaced when unmodified; three-way merged when edited locally |
 | Block | The text between `vibe-harness:begin` and `vibe-harness:end` markers in `AGENTS.md` and `.gitignore` | Same as managed, limited to the block; text outside the markers is never touched |
-| Seed | `.agents/project-profile.md`, `CLAUDE.md`, empty `.agents/notes/proposed/` and `rejected/` | Created when absent, never overwritten |
+| Seed | `.agents/project-profile.md`, empty `.agents/notes/proposed/` and `rejected/` | Created when absent, never overwritten |
+| Link | `CLAUDE.md` → `AGENTS.md` | Created when absent. A file whose content is `@AGENTS.md` is replaced. Any other existing content is kept |
 
 `.agents/vibe-harness.lock.json` records the kit version, the selected skills, and the upstream hash of every managed file and block. Commit it with the installed files.
 
@@ -52,7 +53,7 @@ Cursor and Codex read skills from `.agents/skills/`. Claude Code reads `.claude/
    - Set `vcs.*` from the remote and default branch, and set each `surfaces.*` flag from evidence.
    - Complete the "Evidence by surface" table, "Hooks and CI", and "Project-specific rules" from what you found in step 1.
 
-6. **Integrate existing instructions.** Project-specific rules belong in `AGENTS.md` outside the managed block. If `CLAUDE.md` already existed with its own content, propose moving that content into `AGENTS.md` and leaving `CLAUDE.md` as `@AGENTS.md`; do the same for other instruction files only with the user's agreement. Do not edit inside the managed block to add project rules.
+6. **Integrate existing instructions.** Project-specific rules belong in `AGENTS.md` outside the managed block. If `CLAUDE.md` already existed with its own content, propose moving that content into `AGENTS.md` and leaving `CLAUDE.md` as a symlink to `AGENTS.md`; do the same for other instruction files only with the user's agreement. Do not edit inside the managed block to add project rules.
 
 7. **Verify.** Run `node <kit>/scripts/vh.mjs status --target <repo>`: it should list nothing as missing or modified, and the profile should have no `TODO(profile)` markers left. Run the project's documentation check if the profile names one.
 
@@ -93,4 +94,4 @@ Core skills cannot be removed. Removed skills are deleted only where their files
 
 ## Without Node.js
 
-Copy `skills/<skill>/` to `<repo>/.agents/skills/<skill>/` for each selected skill and copy each template in [manifest.json](manifest.json) to its `target`, replacing `{{PROJECT_NAME}}`. For `block` templates, wrap the content in the markers (`<!-- vibe-harness:begin -->` and `<!-- vibe-harness:end -->` in Markdown, `# vibe-harness:begin` and `# vibe-harness:end` elsewhere) and append it to the existing file. Create `<repo>/.claude/skills` as a symlink to `../.agents/skills`. When the OS cannot create it, write a file whose contents are exactly `../.agents/skills` with no trailing newline and stage it with `git update-index --add --cacheinfo 120000,<blob>,.claude/skills`, where `<blob>` is `git hash-object -w` of that text. Do not copy skills into `.claude/skills/`. Skip the lock file. When Node.js becomes available, running `install` adopts every file that still matches the kit and reports the rest as conflicts.
+Copy `skills/<skill>/` to `<repo>/.agents/skills/<skill>/` for each selected skill and copy each template in [manifest.json](manifest.json) to its `target`, replacing `{{PROJECT_NAME}}`. For `block` templates, wrap the content in the markers (`<!-- vibe-harness:begin -->` and `<!-- vibe-harness:end -->` in Markdown, `# vibe-harness:begin` and `# vibe-harness:end` elsewhere) and append it to the existing file. Create `<repo>/.claude/skills` as a symlink to `../.agents/skills`, and `<repo>/CLAUDE.md` as a symlink to `AGENTS.md`. When the OS cannot create a link, write a file whose contents are exactly the link text with no trailing newline (`../.agents/skills` or `AGENTS.md`) and stage it with `git update-index --add --cacheinfo 120000,<blob>,<path>`, where `<blob>` is `git hash-object -w` of that text. Do not copy skills into `.claude/skills/`, and do not write `@AGENTS.md`. Skip the lock file. When Node.js becomes available, running `install` adopts every file that still matches the kit and reports the rest as conflicts.

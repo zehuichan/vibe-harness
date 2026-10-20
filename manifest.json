@@ -1,6 +1,6 @@
 {
   "name": "vibe-harness",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "repository": "https://github.com/zehuichan/vibe-harness",
   "variables": ["PROJECT_NAME"],
   "skills": {
@@ -26,7 +26,6 @@
   "templates": [
     { "source": "templates/AGENTS.md.tmpl", "target": "AGENTS.md", "mode": "block" },
     { "source": "templates/gitignore.tmpl", "target": ".gitignore", "mode": "block" },
-    { "source": "templates/CLAUDE.md.tmpl", "target": "CLAUDE.md", "mode": "seed" },
     { "source": "templates/project-profile.md.tmpl", "target": ".agents/project-profile.md", "mode": "seed" },
     { "source": "templates/agent-notes/README.md", "target": ".agents/notes/README.md", "mode": "managed" },
     { "source": "templates/agent-notes/AGENTS.md", "target": ".agents/notes/AGENTS.md", "mode": "managed" },

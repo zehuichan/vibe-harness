@@ -6,8 +6,8 @@
  * upstream hash of every managed file in `.agents/vibe-harness.lock.json`. On upgrade, files
  * whose content still equals the recorded upstream hash are replaced; locally modified files are
  * three-way merged with `git merge-file`, using the previous kit commit as the base. Seed files
- * (the project profile, CLAUDE.md) are created once and never overwritten. Block templates own
- * only the text between their markers. Requires Node 20+ and git.
+ * (the project profile) are created once and never overwritten. CLAUDE.md is a symlink to AGENTS.md.
+ * Block templates own only the text between their markers. Requires Node 20+ and git.
  *
  * Exit codes: 0 success, 1 usage or fatal error, 2 conflicts that need a human or agent decision.
  */
@@ -25,6 +25,10 @@ const SKILLS_DIR = '.agents/skills'
 const CLAUDE_SKILLS_DIR = '.claude/skills'
 /** Git symlink blob for `.claude/skills`. No trailing newline. */
 const CLAUDE_LINK_TEXT = '../.agents/skills'
+const CLAUDE_MD = 'CLAUDE.md'
+/** Git symlink blob for `CLAUDE.md`. No trailing newline. */
+const CLAUDE_MD_LINK = 'AGENTS.md'
+const LEGACY_CLAUDE_MD = new Set(['@AGENTS.md', '@AGENTS.md\n'])
 const SYMLINK_UNAVAILABLE = new Set(['EPERM', 'EACCES', 'ENOTSUP'])
 const LOCK_VERSION = 1
 const EXIT_CONFLICT = 2
@@ -294,18 +298,22 @@ function claudeSkillsPath(target) {
   return path.join(target, CLAUDE_SKILLS_DIR)
 }
 
-/** `symlink` is an OS link to `.agents/skills`. `git-symlink` is the same link checked out as its text. */
-function readClaudeLink(target) {
-  const abs = claudeSkillsPath(target)
+/** `symlink` is an OS link. `git-symlink` is the same link checked out as its text. */
+function readRepoLink(target, rel, linkText) {
+  const abs = resolveInside(target, rel)
   const stat = lstatOrNull(abs)
   if (!stat) return { kind: 'absent' }
   if (stat.isSymbolicLink()) {
-    const own = samePath(path.resolve(path.dirname(abs), fs.readlinkSync(abs)), path.join(target, SKILLS_DIR))
+    const own = samePath(path.resolve(path.dirname(abs), fs.readlinkSync(abs)), path.resolve(path.dirname(abs), linkText))
     return { kind: own ? 'symlink' : 'foreign-link' }
   }
-  if (stat.isFile() && fs.readFileSync(abs).equals(Buffer.from(CLAUDE_LINK_TEXT))) return { kind: 'git-symlink' }
+  if (stat.isFile() && fs.readFileSync(abs).equals(Buffer.from(linkText))) return { kind: 'git-symlink' }
   if (stat.isDirectory()) return { kind: 'directory' }
   return { kind: 'other' }
+}
+
+function readClaudeLink(target) {
+  return readRepoLink(target, CLAUDE_SKILLS_DIR, CLAUDE_LINK_TEXT)
 }
 
 function indexMode(target, rel) {
@@ -314,14 +322,14 @@ function indexMode(target, rel) {
 }
 
 /**
- * Stages `.claude/skills` as git mode 120000.
+ * Stages `rel` as git mode 120000 with blob `linkText`.
  * `git add` of the link-text file would record a regular file when `core.symlinks` is false,
  * so a later checkout would not be a symlink.
  */
-function stageGitSymlink(target) {
-  const hashed = spawnSync('git', ['hash-object', '-w', '--stdin'], { cwd: target, input: CLAUDE_LINK_TEXT, encoding: 'utf8' })
+function stageGitLink(target, rel, linkText) {
+  const hashed = spawnSync('git', ['hash-object', '-w', '--stdin'], { cwd: target, input: linkText, encoding: 'utf8' })
   if (hashed.status !== 0) fail(`git hash-object failed: ${hashed.stderr?.trim()}`)
-  const updated = spawnSync('git', ['update-index', '--add', '--cacheinfo', `120000,${hashed.stdout.trim()},${CLAUDE_SKILLS_DIR}`], { cwd: target, encoding: 'utf8' })
+  const updated = spawnSync('git', ['update-index', '--add', '--cacheinfo', `120000,${hashed.stdout.trim()},${rel}`], { cwd: target, encoding: 'utf8' })
   if (updated.status !== 0) fail(`git update-index failed: ${updated.stderr?.trim()}`)
 }
 
@@ -336,26 +344,70 @@ function removeClaudeLink(target) {
   pruneEmptyDirs(target, CLAUDE_SKILLS_DIR)
 }
 
-function createClaudeLink(target, ctx) {
+function createRepoLink(target, rel, linkText, ctx, symlinkType) {
   if (ctx.dryRun) {
-    ctx.log('link', CLAUDE_SKILLS_DIR, `-> ${CLAUDE_LINK_TEXT}`)
+    ctx.log('link', rel, `-> ${linkText}`)
     return
   }
-  const abs = claudeSkillsPath(target)
+  const abs = resolveInside(target, rel)
   fs.mkdirSync(path.dirname(abs), { recursive: true })
   try {
-    fs.symlinkSync(CLAUDE_LINK_TEXT, abs, 'dir')
-    ctx.log('link', CLAUDE_SKILLS_DIR, `-> ${CLAUDE_LINK_TEXT}`)
+    fs.symlinkSync(linkText, abs, symlinkType)
+    ctx.log('link', rel, `-> ${linkText}`)
   } catch (error) {
     if (!SYMLINK_UNAVAILABLE.has(error.code)) throw error
-    fs.writeFileSync(abs, CLAUDE_LINK_TEXT)
+    fs.writeFileSync(abs, linkText)
     try {
-      stageGitSymlink(target)
+      stageGitLink(target, rel, linkText)
     } catch (stageError) {
       fs.unlinkSync(abs)
       throw stageError
     }
-    ctx.log('link', CLAUDE_SKILLS_DIR, `-> ${CLAUDE_LINK_TEXT} (git symlink; directory link failed with ${error.code})`)
+    const kind = symlinkType === 'dir' ? 'directory' : 'file'
+    ctx.log('link', rel, `-> ${linkText} (git symlink; ${kind} link failed with ${error.code})`)
+  }
+}
+
+function createClaudeLink(target, ctx) {
+  createRepoLink(target, CLAUDE_SKILLS_DIR, CLAUDE_LINK_TEXT, ctx, 'dir')
+}
+
+/**
+ * Points `CLAUDE.md` at `AGENTS.md`. A file whose whole content is `@AGENTS.md` is the previous
+ * seed and is replaced. Any other existing content is kept.
+ */
+function syncClaudeMd(target, seeds, ctx) {
+  const prior = seeds[CLAUDE_MD]
+  const found = readRepoLink(target, CLAUDE_MD, CLAUDE_MD_LINK)
+  if (found.kind === 'symlink' || found.kind === 'git-symlink') {
+    if (found.kind === 'git-symlink' && prior !== 'kept' && !ctx.dryRun && indexMode(target, CLAUDE_MD) !== '120000') {
+      stageGitLink(target, CLAUDE_MD, CLAUDE_MD_LINK)
+    }
+    return prior === 'kept' ? 'kept' : 'created'
+  }
+  if (found.kind === 'absent') {
+    if (prior) return prior
+    createRepoLink(target, CLAUDE_MD, CLAUDE_MD_LINK, ctx, 'file')
+    return 'created'
+  }
+  const abs = resolveInside(target, CLAUDE_MD)
+  const stat = lstatOrNull(abs)
+  const text = stat?.isFile() && !stat.isSymbolicLink() ? fs.readFileSync(abs, 'utf8').replace(/\r\n/g, '\n') : null
+  if (text !== null && LEGACY_CLAUDE_MD.has(text) && prior !== 'kept') {
+    if (!ctx.dryRun) fs.unlinkSync(abs)
+    createRepoLink(target, CLAUDE_MD, CLAUDE_MD_LINK, ctx, 'file')
+    return 'created'
+  }
+  ctx.log('keep', CLAUDE_MD, 'existing file kept')
+  return 'kept'
+}
+
+function reportRepoLink(ctx, target, rel, linkText) {
+  const found = readRepoLink(target, rel, linkText)
+  if (found.kind === 'git-symlink' && indexMode(target, rel) !== '120000') {
+    ctx.log('missing', rel, 'link text is present but the git index does not record a symlink')
+  } else if (found.kind !== 'symlink' && found.kind !== 'git-symlink') {
+    ctx.log('missing', rel, 'symlink expected')
   }
 }
 
@@ -398,7 +450,7 @@ function syncClaude(target, requested, skills, previous, ctx) {
   if (mode === 'symlink') {
     if (link.kind === 'symlink') return { claude: 'symlink', mirrors: [] }
     if (link.kind === 'git-symlink') {
-      if (!ctx.dryRun && indexMode(target, CLAUDE_SKILLS_DIR) !== '120000') stageGitSymlink(target)
+      if (!ctx.dryRun && indexMode(target, CLAUDE_SKILLS_DIR) !== '120000') stageGitLink(target, CLAUDE_SKILLS_DIR, CLAUDE_LINK_TEXT)
       return { claude: 'symlink', mirrors: [] }
     }
     if (link.kind === 'directory') {
@@ -564,6 +616,7 @@ function cmdInstall(opts) {
   const claude = syncClaude(target, opts.claude ?? 'auto', skills, noClaude, ctx)
   lock.claude = claude.claude
   lock.mirrors = claude.mirrors
+  lock.seeds[CLAUDE_MD] = syncClaudeMd(target, {}, ctx)
   if (!opts.dryRun) writeLock(target, lock)
 
   printEvents(ctx, `${opts.dryRun ? 'Dry run: would install' : 'Installed'} vibe-harness ${kit.ref} (${skills.length} skills) into ${target}:`)
@@ -687,6 +740,7 @@ function cmdUpgrade(opts) {
   const claude = syncClaude(target, opts.claude ?? lock.claude, skills, lock, ctx)
   next.claude = claude.claude
   next.mirrors = claude.mirrors
+  next.seeds[CLAUDE_MD] = syncClaudeMd(target, lock.seeds, ctx)
   if (!opts.dryRun) writeLock(target, next)
 
   printEvents(ctx, `${opts.dryRun ? 'Dry run: would upgrade' : 'Upgraded'} vibe-harness ${lock.kit.ref} -> ${kit.ref} in ${target}:`)
@@ -714,14 +768,8 @@ function cmdStatus(opts) {
     else if (sha256(body) !== entry.upstream) ctx.log('modified', rel, 'managed block')
     else clean++
   }
-  if (lock.claude === 'symlink') {
-    const found = readClaudeLink(target)
-    if (found.kind === 'git-symlink' && indexMode(target, CLAUDE_SKILLS_DIR) !== '120000') {
-      ctx.log('missing', CLAUDE_SKILLS_DIR, 'link text is present but the git index does not record a symlink')
-    } else if (found.kind !== 'symlink' && found.kind !== 'git-symlink') {
-      ctx.log('missing', CLAUDE_SKILLS_DIR, 'symlink expected')
-    }
-  }
+  if (lock.claude === 'symlink') reportRepoLink(ctx, target, CLAUDE_SKILLS_DIR, CLAUDE_LINK_TEXT)
+  if (lock.seeds[CLAUDE_MD] === 'created') reportRepoLink(ctx, target, CLAUDE_MD, CLAUDE_MD_LINK)
   for (const rel of lock.mirrors ?? []) {
     const mirror = path.join(target, rel)
     const source = path.join(target, SKILLS_DIR, path.basename(rel))

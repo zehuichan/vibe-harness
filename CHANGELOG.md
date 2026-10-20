@@ -2,6 +2,10 @@
 
 Each release lists changes that affect installed repositories. Upgrade agents read the entries newer than the `kit.ref` in `.agents/vibe-harness.lock.json`; entries name seed-template changes explicitly because upgrades never rewrite seeds.
 
+## 0.1.2
+
+- `CLAUDE.md` is a symlink to `AGENTS.md` (git mode 120000). A seed whose content is `@AGENTS.md` is replaced on upgrade. A `CLAUDE.md` with any other content is kept. The project profile and notes seeds are unchanged.
+
 ## 0.1.1
 
 - `.claude/skills` is one symlink to `../.agents/skills`. Install no longer copies skills there when `core.symlinks` is off or the OS refuses the directory link. The committed object is git mode 120000. An existing `claude: mirror` install stays a mirror until `upgrade --claude symlink`.

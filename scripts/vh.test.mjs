@@ -80,7 +80,15 @@ describe('install', () => {
     assert.match(readRepo('.agents/project-profile.md'), /^project: acme$/m)
     assert.match(readRepo('AGENTS.md'), /<!-- vibe-harness:begin -->\n## Working agreement/)
     assert.match(readRepo('.gitignore'), /# vibe-harness:begin\n\.agent-scratch\/\n# vibe-harness:end/)
-    assert.equal(readRepo('CLAUDE.md'), '@AGENTS.md\n')
+    const claudeMd = repoFile('CLAUDE.md')
+    const claudeStat = fs.lstatSync(claudeMd)
+    if (claudeStat.isSymbolicLink()) {
+      assert.equal(fs.readlinkSync(claudeMd).replaceAll('\\', '/'), 'AGENTS.md')
+    } else {
+      assert.equal(fs.readFileSync(claudeMd, 'utf8'), 'AGENTS.md')
+      assert.match(git(repo, 'ls-files', '-s', '--', 'CLAUDE.md'), /^120000 47dc3e3d863cfb5727b87d785d09abf9743c0a72 /)
+    }
+    assert.equal(readLock().seeds['CLAUDE.md'], 'created')
     const lock = readLock()
     assert.equal(lock.kit.commit, git(kit, 'rev-parse', 'HEAD'))
     assert.ok(lock.skills.includes('error-handling'))
@@ -186,6 +194,21 @@ describe('upgrade', () => {
     assert.ok(!fs.existsSync(repoFile('.agents/skills/trim-cot-leakage/references/examples.md')))
     assert.equal(readRepo('.agents/skills/error-handling/references/new.md'), '# New\n')
     assert.equal(readLock().kit.commit, git(kit, 'rev-parse', 'HEAD'))
+  })
+
+  test('replaces a CLAUDE.md seed of @AGENTS.md with a symlink to AGENTS.md', () => {
+    assert.equal(vh('install', '--claude', 'none').status, 0)
+    const claudeMd = repoFile('CLAUDE.md')
+    fs.unlinkSync(claudeMd)
+    fs.writeFileSync(claudeMd, '@AGENTS.md\n')
+    const result = vh('upgrade')
+    assert.equal(result.status, 0, result.out)
+    assert.match(result.out, /link\s+CLAUDE\.md/)
+    const stat = fs.lstatSync(claudeMd)
+    if (stat.isSymbolicLink()) assert.equal(fs.readlinkSync(claudeMd).replaceAll('\\', '/'), 'AGENTS.md')
+    else assert.equal(fs.readFileSync(claudeMd, 'utf8'), 'AGENTS.md')
+    assert.equal(readLock().seeds['CLAUDE.md'], 'created')
+    assert.doesNotMatch(vh('status').out, /missing\s+CLAUDE\.md/)
   })
 
   test('merges a locally edited managed block with an upstream block change', () => {
