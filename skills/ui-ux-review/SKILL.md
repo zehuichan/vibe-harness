@@ -5,7 +5,7 @@ description: Design and review user-visible GUI changes: visual token discipline
 
 # UI and UX review
 
-This skill is guidance, not a complete checklist. It covers judgment calls that lint, typecheck, and localization checks cannot make: where feedback appears, what gets reused, and how surfaces behave at window edges and across platforms. Copy quality follows `prose-standard`; failure reports follow `error-handling`; responsive behavior follows [responsive-ui](../responsive-ui/SKILL.md). The project's design system and component catalog own tokens and components; this skill adds judgment on top of them, not a second copy.
+This skill is guidance, not a complete checklist. It covers judgment calls that lint, typecheck, and localization checks cannot make: where feedback appears, what gets reused, and how surfaces behave at window edges and across platforms. Copy quality follows `prose-standard`; failure reports follow `error-handling`; responsive behavior, including mobile and touch detection, follows [responsive-ui](../responsive-ui/SKILL.md). The project's design system and component catalog own tokens and components; this skill adds judgment on top of them, not a second copy.
 
 ## Visual foundation
 

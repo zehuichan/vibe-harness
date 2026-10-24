@@ -1,6 +1,6 @@
 ---
 name: responsive-ui
-description: Use when designing, implementing, or reviewing responsive layouts, text truncation, title wrapping, icon-only controls, hover behavior on touch devices, mobile tooltips and keyboards, and focus during width changes.
+description: Use when designing, implementing, or reviewing responsive layouts, mobile and touch detection, text truncation, title wrapping, icon-only controls, hover behavior on touch devices, mobile tooltips and keyboards, and focus during width changes.
 ---
 
 # Responsive UI
@@ -41,10 +41,10 @@ Do not reduce a control to an icon when it navigates to a separate page whose pu
 
 ## 6. Hover on touch devices
 
-1. Enable hover effects only on devices that support hovering. Use `@media (hover: hover)`, not viewport width, to decide.
-2. Tapping on a phone must not leave behind backgrounds, highlights, or action-button visibility intended only for hover.
-3. Preserve normal selected, enabled, and pressed states, and keyboard focus indicators.
-4. Preserve focus when the width changes, unless the focused element disappears as a result.
+1. Enable hover effects under `@media (hover: hover)`, independently of viewport width. This queries the primary pointing device, not the current event; script hover handlers must ignore touch events on mixed-input devices.
+2. Tapping on a phone must not leave behind backgrounds, highlights, or action-button visibility intended only for hover. Without hover, actions remain visible or reachable through an explicit control, and keyboard users can reach and reveal the same actions.
+3. Preserve normal selected, expanded, enabled, and pressed states and focus indicators, and keep these styles independent of hover capability. Do not clear focus to remove a hover effect; `:focus-visible` can also apply to text fields focused by touch.
+4. Preserve focus during width changes when the control remains visible and interactive. Avoid remounting controls only to change layout. If the focused control is hidden or removed, move focus to a suitable remaining control without opening the mobile keyboard unnecessarily.
 
 ## 7. Mobile tooltips
 
@@ -54,6 +54,11 @@ Do not reduce a control to an icon when it navigates to a separate page whose pu
 ## 8. Mobile keyboard
 
 Do not raise the on-screen keyboard automatically unless that is explicitly intended.
+
+## 9. Input capabilities and mobile text fields
+
+1. Prefer CSS media features for presentation: `(pointer: coarse)` describes the primary pointer's accuracy, `(hover: none)` describes its inability to hover, and width queries select layout breaks. These queries do not detect a physical keyboard. Never branch layout on a parsed user agent.
+2. Text fields take a 16px floor under `(pointer: coarse)` to avoid iOS Safari's focus zoom. Fine pointers keep the project's existing compact field sizes; follow its established field rules.
 
 ## Verification
 
