@@ -17,14 +17,14 @@ For broad requests, divide independent domains among subagents, give each a boun
 
 ## Search for removable obligations
 
-Use these questions to guide discovery. Read [the pattern reference](references/patterns.md) when a candidate needs calibration.
+Use these questions to guide discovery. Requirements, checks, and Agent Notes introduced by the code under review are design choices to assess, not independent evidence that its distinctions are necessary. Read [the pattern reference](references/patterns.md) when a candidate needs calibration.
 
-- **Does a declared feature have a complete effect path?** Trace producer, transformations, provider or endpoint support, and observable result. A field copied everywhere may have no setter, no reader, or only implementations that reject it. Search constructors and discriminant emitters as well as callers.
-- **Which distinctions change a consumer's action?** Several internal states may need only one public status. Keep internal distinctions that control authorization, durability, or ownership; remove public distinctions that only invite an unusable choice.
+- **Does a declared feature have a complete effect path?** Trace producer, transformations, provider or endpoint support, and observable result. A field copied everywhere may have no setter, no reader, or only implementations that reject it. For command-line and configuration pass-throughs, follow authoritative reads and precedence to find forwarded values that are shadowed before use. Search constructors and discriminant emitters as well as callers.
+- **Which distinctions change a consumer's action?** First ask whether the distinction, field, or adapter is needed at all. Trace existing source fields and discriminants through their emitters and authorization or capability checks before adding a transport-specific marker; a broad category in an envelope need not carry the source field's meaning. Consider deleting a distinction separately from relocating its declaration, and state which inputs or capabilities each alternative admits. Several internal states may need only one public status. Preserve required authorization, durability, and ownership behavior; remove public distinctions that only invite an unusable choice.
 - **Could a smaller explicit behavior remove the subsystem?** A fixed interval, a caller-supplied value, or a reported failure can eliminate a generalized calendar, persisted defaults, or automatic rollback. Name the capability given up and the machinery deleted. A production caller makes this a behavior decision, not an automatic rejection.
 - **Can a consumer read the authoritative value when needed?** Look for copied histories, promotion ledgers, invalidation events followed by reads, and caches beside an existing shared stream. Deriving at use can delete subscriptions, retained data, and recovery paths together. Establish the required time of observation first.
 - **Is composition being mistaken for policy?** Optional service presence or a sibling feature can express availability without deciding deployment behavior. Explicit configuration may remove registries and dependency checks.
-- **What owns the complete maintenance cost?** Trace pass-through configuration, duplicate application trees, demo launchers used by products, and installation helpers with their own lifecycle. Compare the whole removed system with the replacement, including residual glue; moving complexity or adding a check that keeps duplicates equal does not remove it.
+- **What owns the complete maintenance cost?** Trace duplicate application trees, demo launchers used by products, and installation helpers with their own lifecycle. For required behavior, compare existing extension points near the producer or consumer with changes to distant core or shared type declarations under [the ownership rule](../../../docs/defensive-patterns/general.md#a-business-capability-owns-itself). Compare the whole removed system with the replacement, including residual glue; moving an unnecessary concept closer to its owner or adding a check that keeps duplicate definitions equal does not remove its maintenance cost.
 
 ## Prove reachability and the trade-off
 
@@ -32,7 +32,7 @@ Start with a text search, then read the matches. Search exact symbols, property 
 
 Include source, applications, scripts, shipped configuration, package manifests and exports, dynamic loading, generated assets, and external consumers of published packages. Classify examples and fixtures by their actual entry point rather than directory name. Public third-party extension points can be intentional with zero in-repository callers.
 
-For each candidate, record the current owner, the effective producer and consumer path, what disappears, what remains, and the strongest reason to keep it. Distinguish:
+For each candidate, record the current owner, the effective producer and consumer path, what disappears, what remains, capability and compatibility effects, and the strongest reason to keep it. Distinguish:
 
 - removal of unreachable or unread behavior;
 - a narrower public or product behavior with an explicit loss;
