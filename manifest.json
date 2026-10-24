@@ -1,6 +1,6 @@
 {
   "name": "vibe-harness",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "repository": "https://github.com/zehuichan/vibe-harness",
   "variables": ["PROJECT_NAME"],
   "skills": {
