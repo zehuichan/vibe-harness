@@ -68,8 +68,27 @@ beforeEach(() => {
   git(repo, 'init', '-q')
 })
 
+/**
+ * Deletes a temporary directory. On Linux runners a temporary repository can still gain files under `.git` while it is being
+ * deleted, which fails `rmSync` with ENOTEMPTY. `rmSync`'s own retries only repeat the final `rmdir`, so the whole deletion
+ * runs again after a pause, and the leftover names are reported to identify the writer if this recurs.
+ */
+function removeTemp(dir) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true })
+      return
+    } catch (error) {
+      if (error.code !== 'ENOTEMPTY' || attempt === 5) throw error
+      const left = fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }) : []
+      process.stderr.write(`ENOTEMPTY removing ${dir} (attempt ${attempt}); remaining: ${left.join(', ')}\n`)
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100 * attempt)
+    }
+  }
+}
+
 afterEach(() => {
-  for (const dir of temps.splice(0)) fs.rmSync(dir, { recursive: true, force: true })
+  for (const dir of temps.splice(0)) removeTemp(dir)
 })
 
 describe('install', () => {
