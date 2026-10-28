@@ -4,7 +4,17 @@ Procedure for an agent that brings a repository with vibe-harness already instal
 
 ## Prompt
 
-Paste one of these to the agent. `<kit path>` is a checkout of this repository; `<repo path>` is the repository to update.
+Tell the coding agent working in the repository you want to update:
+
+```text
+Update vibe-harness in this repository to the latest version from https://github.com/zehuichan/vibe-harness following its UPDATE.md. Do not commit unless I ask.
+```
+
+```text
+按 https://github.com/zehuichan/vibe-harness 的 UPDATE.md，把本仓库的 vibe-harness 更新到最新版。我没说提交就不要提交。
+```
+
+The agent fetches the kit itself. To update a repository other than the one the agent is working in, or to use a kit checkout you already have, name both paths instead:
 
 ```text
 Follow UPDATE.md in the vibe-harness checkout at <kit path>. Update the vibe-harness installed in <repo path> to the latest version. Do not commit unless I ask.
@@ -14,6 +24,18 @@ Follow UPDATE.md in the vibe-harness checkout at <kit path>. Update the vibe-har
 按 UPDATE.md，把 <仓库路径> 里安装的 vibe-harness 更新到最新版，套件检出在 <套件路径>。我没说提交就不要提交。
 ```
 
+Below, `<repo path>` is the repository to update: the one the agent is working in, unless the request names another. `<kit path>` is a checkout of this repository.
+
+## Get the kit
+
+Use the checkout the request names. Otherwise clone the repository the request gives, or `kit.repository` from the lock file when it gives none, into a temporary directory outside `<repo path>`; that clone is `<kit path>`. Reuse the clone you read this file from.
+
+```sh
+git clone --filter=blob:none <kit repository> <kit path>
+```
+
+A partial clone keeps the download small and still lets the installer fetch older files for three-way merges.
+
 ## Scope
 
 Edit only `<repo path>`. Never edit the kit checkout: the installer reads it as the upstream text and as the base for later merges. Update the installed kit only. Do not change the skill selection unless the user asks; that is a separate operation in [BOOTSTRAP.md](BOOTSTRAP.md#change-the-skill-selection).
@@ -21,7 +43,7 @@ Edit only `<repo path>`. Never edit the kit checkout: the installer reads it as 
 ## Preconditions
 
 1. **`<repo path>` has `.agents/vibe-harness.lock.json`.** Without it, this is an install: follow [BOOTSTRAP.md](BOOTSTRAP.md#install).
-2. **The kit checkout is clean and released.** Run `git status --short` in `<kit path>`. The installer copies working-tree text but records the commit at `HEAD`. Uncommitted kit edits, such as a finished DISTILL.md run, are installed under a commit that does not contain them, so the next upgrade cannot rebuild the merge base and reports "base unavailable" for every file that is both edited locally and changed upstream. If the checkout has changes, stop and report them. Releasing is the user's decision: follow the Developing section of [README.md](README.md) only when the user asks.
+2. **The kit checkout is clean and released.** Run `git status --short` in `<kit path>`. The installer copies working-tree text but records the commit at `HEAD`. Uncommitted kit edits, such as a finished DISTILL.md run, are installed under a commit that does not contain them, so the next upgrade cannot rebuild the merge base and reports "base unavailable" for every file that is both edited locally and changed upstream. A clone made in this run is clean. If a checkout the user named has changes, stop and report them. Releasing is the user's decision: follow the Developing section of [README.md](README.md) only when the user asks.
 3. **`<repo path>` starts with a reviewable `git status`.** Record any unrelated uncommitted changes and tell the user, so the upgrade diff stays separable from them.
 
 ## Choose the version
