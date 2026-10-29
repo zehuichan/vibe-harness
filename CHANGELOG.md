@@ -2,6 +2,11 @@
 
 Each release lists changes that affect installed repositories. Upgrade agents read the entries newer than the `kit.ref` in `.agents/vibe-harness.lock.json`; entries name seed-template changes explicitly because upgrades never rewrite seeds.
 
+## 0.1.4
+
+- `ui-ux-review` (optional): on complex pages and containers, set shared horizontal and vertical alignment axes before adjusting local spacing, checked across hover, selected, and expanded or collapsed states, with references for stacked navigation lists, content list pages, and adjacent panel headers. Locally edited copies are three-way merged on upgrade.
+- No profile key is added. The project profile and notes seeds are unchanged.
+
 ## 0.1.3
 
 - Skill text updates distilled from the source project. Locally edited copies are three-way merged on upgrade.
