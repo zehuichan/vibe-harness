@@ -55,6 +55,10 @@ For desktop shells, any new header element or full page accounts for each platfo
 
 - Nothing sits flush against its neighbor without an intentional gap, and adjacent elements keep the region's established spacing.
 - Prefer symmetry for parallel elements; an unexplained one-off gap usually signals a missed shared value.
+- **On complex pages and containers, set shared horizontal and vertical alignment axes before adjusting local spacing.** Check the axes in hover, selected, and expanded or collapsed states, and against adjacent panels and other page elements. Use the reference whose layout is closest:
+  - **Stacked navigation list:** corresponding text starts and leading icons align across rows, and hover and selected row backgrounds align with the controls above the list.
+  - **Content list page:** content stays on one shared leading edge; a row's hover background may extend past that edge while the content stays in place.
+  - **Adjacent panel headers:** the first header rows of side-by-side panels align and share a height, the second rows do the same, and their underlines and dividers sit on shared horizontal baselines.
 
 ## Evidence and design review
 
