@@ -7,7 +7,14 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 const KIT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const GIT_IDENTITY = ['-c', 'user.name=vibe-harness-test', '-c', 'user.email=test@example.invalid', '-c', 'commit.gpgsign=false']
+// Automatic maintenance detaches by default and can keep writing under `.git` after the command returns, while afterEach deletes the directory.
+const GIT_CONFIG = [
+  '-c', 'user.name=vibe-harness-test',
+  '-c', 'user.email=test@example.invalid',
+  '-c', 'commit.gpgsign=false',
+  '-c', 'maintenance.auto=false',
+  '-c', 'gc.auto=0',
+]
 
 let kit
 let repo
@@ -20,7 +27,7 @@ function tempDir(prefix) {
 }
 
 function git(cwd, ...args) {
-  const result = spawnSync('git', [...GIT_IDENTITY, ...args], { cwd, encoding: 'utf8' })
+  const result = spawnSync('git', [...GIT_CONFIG, ...args], { cwd, encoding: 'utf8' })
   assert.equal(result.status, 0, `git ${args.join(' ')} failed: ${result.stderr}`)
   return result.stdout.trim()
 }
