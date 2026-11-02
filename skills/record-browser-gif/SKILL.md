@@ -1,6 +1,6 @@
 ---
 name: record-browser-gif
-description: Record browser or Web UI interaction demos as verified, optimized GIFs using the available browser-control workflow, optional Playwright video for higher capture frame rates, and a deterministic encoder, then attach the GIF to a pull request with gh --attach, falling back to a dedicated assets branch. Use when asked to make, record, or generate a GIF demonstrating a browser workflow, and as evidence for pull requests that change user-visible GUI behavior.
+description: Record browser or Web UI interaction demos as verified, optimized GIFs using the available browser-control workflow, optional Playwright video for higher capture frame rates, and a deterministic encoder, then attach the GIF to a pull request with gh --attach; publication requires gh v2.99.0 or later, and a GIF over 5 MiB is split into parts. Use when asked to make, record, or generate a GIF demonstrating a browser workflow, and as evidence for pull requests that change user-visible GUI behavior.
 ---
 
 # Record a browser GIF
@@ -13,8 +13,8 @@ When the project rules require GIF evidence for user-visible GUI changes, record
 
 ## Keep recording separate from publication
 
-- Recording produces local video or screenshots and one `.gif` artifact; it never mutates remote state.
-- Publication (attaching to a pull request body, or pushing to an assets branch) is a separate final step, performed only when the task includes it. It never touches the pull request's own branch.
+- Recording produces local video or screenshots; encoding produces one `.gif` artifact, or its [numbered parts](#attach-with-gh) when it exceeds 5 MiB. Neither mutates remote state.
+- Publication (attaching the GIF to a pull request body with `gh --attach`) is a separate final step, performed only when the task includes it. It never commits to any branch.
 - Preserve the requested recording conditions. If credentials or the server are unavailable, report that limitation instead of substituting a fixture.
 - Never read or expose credential values; use the application's normal configuration path and a benign demonstration scenario.
 
@@ -98,19 +98,25 @@ Encoder maintenance: `python3 -m unittest discover -s <this-skill-dir>/scripts -
 
 ## Publish the GIF
 
-Never commit a GIF to the pull request's branch or any branch that merges into a long-lived branch: binary media there bloats history for every clone.
+Never commit a GIF to the pull request's branch or any other branch: every default clone and full-history fetch downloads media committed to any branch. Publish only with `gh --attach`, which uploads the GIF and rewrites the body reference in one command, so no branch carries the media.
 
 ### Attach with gh
 
-`gh --attach` requires `gh` v2.99.0 or later, a repository on github.com, write access, and a GIF of at most 10 MB. Reference the GIF in the body file with the same local path passed to `--attach`; `gh` uploads it and rewrites the reference in place:
+Before attaching, check `gh --version`. `gh --attach` requires `gh` v2.99.0 or later, a repository on github.com (GitHub Enterprise Server is not supported), and write access. When `gh` is older, stop and ask the developer to upgrade it; keep the verified GIF for the retry, and do not install or upgrade `gh` without authorization. When any other requirement is unmet or the attach fails (authentication, write access, a host other than github.com, or an upload error), stop and report it. Never publish the GIF any other way.
+
+Publish GIFs of at most 5 MiB, the encoder's default `--max-bytes`. When the encoder rejects the output for size, reduce `--max-width`, then `--colors` or `--fps`. When the GIF still exceeds 5 MiB at readable text quality, split it: encode consecutive, non-overlapping intervals of the same evidence run into numbered parts that each pass the size check (`--start` and `--end` over the one video, or consecutive screenshot subsets selected with `--pattern`), and verify every part as an artifact. Beside each embed, state its position (such as `2/3`) and its source interval or frames.
+
+Reference each GIF in the body file with the same local path passed to `--attach`; `gh` uploads it and rewrites the reference in place, keeping its position and alt text, so the order of references in the body sets the display order of split parts:
 
 ```sh
 gh pr create --body-file body.md --attach path/to/demo.gif   # new pull request
 gh pr edit <pr> --body-file body.md --attach path/to/demo.gif   # existing pull request
 ```
 
-Immediately before attaching, re-read the pull request's live head and compare it with the commit recorded next to the GIF; re-record if it moved. Afterward, re-read the live body, confirm the reference points at the uploaded URL, and fetch that URL once to confirm `200` and `image/gif`.
+`--attach` is repeatable but refuses the same file twice. Publish split parts in one `gh pr create` or `gh pr edit` with one `--attach` per part, so one pair of live-head checks covers every part.
 
-### Fall back to an assets branch
+Immediately before attaching, re-read the pull request's live head and compare it with the commit recorded next to the GIF; re-record if it moved. Afterward, re-read the live head and require it to remain at that commit, re-read the live body, confirm each reference points at its uploaded URL, and fetch each URL once to confirm `200` and `image/gif`.
 
-Only when `gh --attach` cannot apply, push the GIF to a dedicated orphan assets branch (`<series>-assets`) from a shallow scratch clone, never your working tree. Verify the branch holds media only and the staged checksum matches the verified artifact. Embed it with `https://github.com/<owner>/<repo>/blob/<assets-branch>/<name>.gif?raw=true`; the `?raw=true` suffix is required. Never rewrite, force-push, or delete an assets branch, because merged pull request bodies reference its URLs forever.
+### Existing assets branches
+
+If earlier pull request bodies embed GIFs from dedicated assets branches, never add to, delete, rewrite, or force-push those branches: merged pull request bodies reference their URLs.
