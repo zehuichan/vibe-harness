@@ -5,7 +5,7 @@ description: Use when reviewing a pull request or local change in this repositor
 
 # Reviewing a change
 
-**This skill is guidance, not a complete checklist.** Verify and fetch the change's live base and exact head, then list the changed paths with the profile's `commands.change-scope` before reading the diff and enough surrounding code to understand the design. Re-establish the base after a retarget or merge. Prioritize correctness, lifecycle, security, and broken required behavior over style; a short review with one substantiated blocker is better than a list of nits.
+**This skill is guidance, not a complete checklist.** Verify and fetch the change's live base and exact head, then list the changed paths with the profile's `commands.change-scope` (or `git diff --name-status <base>...<head>` for a head that is not checked out) before reading the diff and enough surrounding code to understand the design. Re-establish the base after a retarget or merge. Prioritize correctness, lifecycle, security, and broken required behavior over style; a short review with one substantiated blocker is better than a list of nits.
 
 **Read the requirements before judging the diff.** Map the changed paths to the sources below, open each owning page, and only then read the diff against those requirements. Judging a diff against memory of the rules is how a violation passes review.
 
@@ -19,7 +19,10 @@ description: Use when reviewing a pull request or local change in this repositor
 - [error-handling](../error-handling/SKILL.md): failure classification, ownership, containment, guarantees, and reports.
 - [lifecycle-review](../lifecycle-review/SKILL.md): singleton state, unreversed effects, and cleanup ordering in plugins, services, and components.
 - [test-reliability](../test-reliability/SKILL.md): isolation and regression proof for resource-owning, asynchronous, or flaky tests.
-- `.agents/notes/`: design rationale. Treat disagreement with an Agent Note as a design discussion, not an automatic veto.
+- [trim-cot-leakage](../trim-cot-leakage/SKILL.md): narration, review history, and reasoning residue in changed comments and docs.
+- [perf-evidence](../perf-evidence/SKILL.md): measurement for changes that can move the cost of a hot path.
+- [agent-experience](../agent-experience/SKILL.md): changes to prompts, tool definitions, or results a model receives.
+- `.agents/notes/` and [agent-notes](../agent-notes/SKILL.md): design rationale. Treat disagreement with an Agent Note as a design discussion, not an automatic veto.
 - When the profile enables `surfaces.ui`, the `ui-ux-review` and `responsive-ui` skills.
 
 ## Blocking requirements
@@ -34,21 +37,24 @@ description: Use when reviewing a pull request or local change in this repositor
 ## Manual checks
 
 - **Intent and interface contracts:** trace both sides of every changed interface. Confirm the implementation matches the description and any Agent Note, including errors, cancellation, ownership, and disposal.
-- **Error handling:** reject catch-and-continue unless the state owner establishes that later work's preconditions hold.
+- **Error handling:** apply error-handling to changed failure paths, including their state guarantees and final user-visible reports. Reject catch-and-continue unless the state owner establishes that later work's preconditions hold, including after recovery.
 - **Lifecycle and concurrency:** for async setup, callbacks, processes, or teardown, check races before publication, cancellation during awaits, independent error reporting, callback containment, ownership before reentry, complete detach cleanup, and quiescent disposal.
 - **Scope, ownership, and necessity:** first identify the required behavior behind each new distinction, field, adapter, state machine, option, defensive copy, and compatibility path. A requirement, check, or Agent Note introduced by the change is a design choice to assess, not independent evidence of necessity. Compare existing source fields, discriminants, and their consumers before accepting another representation; distinguish deleting a concept from relocating its declaration. Moving an unnecessary concept closer to its owner is not a simplification. Challenge unrelated features and speculative generality.
 - **Capability and consumer fit:** trace every current consumer, then flag consumer-specific behavior leaking into a shared interface. For required behavior, prefer an existing extension point near its producer or consumer when the local implementation adds little complexity, following [the ownership rule](../../../docs/defensive-patterns/general.md#a-business-capability-owns-itself); compare an extension owned by the producer or consumer with a change to a distant core or shared type declaration. Flag the inverse too: a new public method on a generic service whose only caller is one internal consumer; prefer a private capability handed to that consumer at construction.
 - **Configuration and public choices:** trace authoritative reads and precedence before accepting another command-line or configuration pass-through; a forwarded value may be shadowed before use. Ask what current-consumer evidence or prior art supports each default, public operation set, format, or imported external concept. Require an explicit choice or deferral when that evidence is absent.
-- **Model perspective:** when the project sends prompts, tool schemas, or results to a model, inspect the exact text the model receives. Flag concepts outside the model's task, and verify stable text verbatim and dynamic behavior through tests or snapshots.
+- **Model perspective:** when the project sends prompts, tool schemas, or results to a model, inspect the exact text the model receives across affected modes, using agent-experience. Flag concepts outside the model's task, and verify stable text verbatim and dynamic behavior through tests or snapshots.
 - **Enforcement:** follow every denial path to the operation that executes it; exercise direct and alternate callers that can bypass schemas, prompts, facades, wrappers, or listener ordering.
 - **Borrowed and derived state:** determine whether each retained value is borrowed or owned, then trace notifications and every cache, prompt, UI echo, replay, and query view to the documented success point and authoritative source.
 - **Bounds cover the final operation:** locate the owner of the complete emitted or retained result, including wrappers and metadata. Probe tiny and exact limits, oversized single chunks, and multibyte text for byte limits.
 - **Real entry path:** tests exercise the shipped loader, binary, worker, or subprocess where relevant. A hand-assembled test setup does not catch invalid exports.
-- **Test strength:** assertions fail on the intended regression and verify external state, logs, events, or disposal rather than restating the implementation. Coverage is necessary but not evidence that the scenario is correct.
+- **Test strength:** assertions fail on the intended regression and verify external state, logs, events, or disposal rather than restating the implementation or trusting an agent's report. Coverage is necessary but not evidence that the scenario is correct.
+- **Test reliability:** for a resource-owning, asynchronous, platform-sensitive, or flaky test, apply test-reliability to the real worker and job topology, resource allocation, global-state restoration, synchronization, timeout budget, and quiescent teardown.
 - **Negative controls:** verify that a deliberately invalid case fails through the real runner for each changed acceptance rule.
-- **Implemented Agent Notes match shipped reality:** when a change implements a proposed note, move and rewrite it as present-tense shipped state in the same diff.
-- **Translations:** compare meaning and terminology on both sides; matching structure does not prove translation quality.
+- **Expected output:** a user-, model-, or terminal-visible change updates the snapshot or end-to-end expectation that owns it (the profile's "Evidence by surface"), or explains why none applies. Review expected-output diffs as behavior changes, not formatting noise.
+- **Performance:** a change that can move the cost of a hot path carries before-and-after measurements under perf-evidence.
+- **Implemented Agent Notes match shipped reality:** when a change implements a proposed note, move and rewrite it as present-tense shipped state in the same diff, then verify its paths, names, and mechanisms against the implementation.
+- **Translations:** when the profile enables `surfaces.bilingual-docs` or `surfaces.localized-ui`, compare meaning and terminology on both sides against the project's translation rules; matching structure does not prove translation quality.
 
 ## Reporting findings
 
-State the defect, location, impact, and evidence. Place a localized defect inline on the tightest relevant diff range; use a top-level comment for cross-cutting architecture, scope, or synthesis. Separate blockers from suggestions, and omit issues already enforced by a passing check. When receiving review, verify each claim and fix or rebut it on technical grounds.
+State the defect, location, impact, and evidence. Place a localized defect inline on the tightest relevant diff range; use a top-level comment for cross-cutting architecture, scope, or synthesis. Separate blockers from suggestions, and omit issues already enforced by a passing check. Reply in the existing review thread. When receiving review, verify each claim and fix or rebut it on technical grounds, without performative agreement.

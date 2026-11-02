@@ -4,9 +4,9 @@ This file defines document structure, documentation tiers, writing rules, and th
 
 ## Document structure
 
-These rules apply to human-facing documentation; [Agent Notes](../.agents/notes/README.md) keep their own format. A document's subject and position in the tree fix its scope: describe its own subject at the appropriate detail, describe direct children only by purpose and responsibility, and link to the owning descendant for lower-level detail.
+These rules apply to human-facing documentation; [Agent Notes](../.agents/notes/README.md) keep their own format. A document's subject and position in the tree fix its scope: describe its own subject at the appropriate detail, describe direct children only by purpose and responsibility, and link to the owning descendant for lower-level detail. Document type does not widen that scope: a reference may be exhaustive only about its own subject. Testing mechanisms, fixtures, and harnesses are documented at the lowest owning level; higher documents link there.
 
-Classify every document as a tutorial or a reference. A tutorial follows an ordered path to an outcome and introduces only what each step needs. A reference defines a lookup scope and current behavior without a teaching sequence. Separate substantial tutorial and reference content.
+Classify every document as a tutorial or a reference. A tutorial follows an ordered path to an outcome and introduces only what each step needs. A reference defines a lookup scope and current behavior without a teaching sequence. Separate substantial tutorial and reference content. Before writing a tutorial, classify the reader's starting knowledge and each concept as beginner, intermediate, or advanced; establish prerequisites first, raise difficulty gradually, and move unnecessary advanced material to a later tutorial or a reference.
 
 Author in this order: locate the document in the tree; set its permitted detail; choose tutorial or reference; for a tutorial, order concepts by prerequisite and difficulty; move descendant-owned detail to its owner and link to it.
 
@@ -36,6 +36,7 @@ Placement: incidents go to postmortems; rationale to Agent Notes; procedures to 
 - **Comments and docs state complete contracts, not reasoning transcripts.** Preserve behavior, failure, timing, ownership, modality, exceptions, and consequences; delete narration, test walkthroughs, review analysis, and code restatement. Keep the local contract and link the rationale.
 - **Write directly.** Name the actor and the fact. Name the exact check, type, API, operation, or behavior instead of a metaphor.
 - **One physical line per paragraph** in Markdown; rely on editor soft-wrap. Code blocks, tables, and lists keep their structure.
+- **Docs change with the code.** A change to a documented type, configuration key, default, error, command, or behavior updates the page that owns it in the same change.
 - **Translations update together.** When the project keeps bilingual documentation, update the counterpart in the same change and keep structure, links, and code blocks aligned.
 - **Commands in documentation are verified.** Run every command, configuration snippet, and example you document against the current checkout before stating its behavior.
 

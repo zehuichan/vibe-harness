@@ -31,7 +31,7 @@ This file holds the project facts that the vibe-harness skills read: commands, v
 
 ## Keys
 
-- `commands.*`: exact shell commands run from the repository root. Use `<target>` for a test file or name, `<base>` for a base ref, and `<file>` for a path. `focused-test` runs one test file or test name; `full-test` runs the whole unit suite; `docs-check` validates documentation; `change-scope` lists changed paths against a verified base.
+- `commands.*`: exact shell commands run from the repository root. Use `<target>` for a test file or name, `<base>` for a base ref, and `<file>` for a path. `focused-test` runs one test file or test name; `full-test` runs the whole unit suite; `docs-check` validates documentation; `change-scope` lists committed changed paths against a verified base; skills add `git status --short` for worktree paths unless this command already reports them.
 - `vcs.host`: `github`, `gitlab`, or `other`. `vcs.pr-cli`: `gh`, `glab`, or `none`.
 - `surfaces.ui`: the project ships a user-visible GUI. Enables `ui-ux-review`, `responsive-ui`, and `record-browser-gif`.
 - `surfaces.localized-ui`: user-visible copy goes through a locale mechanism; reviews reject hardcoded copy.

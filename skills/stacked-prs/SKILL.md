@@ -1,6 +1,6 @@
 ---
 name: stacked-prs
-description: Use when landing a stack of dependent GitHub pull requests (A ← B ← C, each based on the one below) onto the default branch, merging a pull request whose base is another open pull request's branch, or whenever a request mentions "stacked PRs", "PR stack", "dependent PRs", or merging several related pull requests in sequence. Requires GitHub's official stacked-PR feature so GitHub owns stack-wide rules, CI, ordering, retargeting, and merge state.
+description: Use when landing a stack of dependent GitHub pull requests (A ← B ← C, each based on the one below) onto the default branch, merging a pull request whose base is another open pull request's branch, responding to review comments across such a stack, or whenever a request mentions "stacked PRs", "PR stack", "dependent PRs", or merging several related pull requests in sequence. Requires GitHub's official stacked-PR feature so GitHub owns stack-wide rules, CI, ordering, retargeting, and merge state.
 ---
 
 # Landing an official GitHub pull-request stack
@@ -64,10 +64,23 @@ Never dissolve, reorder, or rebuild an existing stack automatically; `gh stack l
 
 Do not rewrite branches merely because a refresh mechanism exists. When the live merge state or repository rules require an updated trunk, choose an allowed history:
 
-- **Native cascading rebase:** check out the stack with `gh stack checkout <pr-or-stack>` when it is not tracked locally, then run `gh stack sync`. It may rebase and lease-protected force-push every active layer before local validation, so immediately inspect the rewritten scope, run the relevant checks for every affected layer (see [pre-push-checks](../pre-push-checks/SKILL.md)), and do not merge or claim readiness until they pass. On a rebase conflict, use `gh stack rebase`, resolve and validate, then publish with `gh stack push`. If local and remote stack compositions diverge, stop and ask.
+- **Native cascading rebase:** check out the stack with `gh stack checkout <pr-or-stack>` when it is not tracked locally, then run `gh stack sync`. It may rebase and lease-protected force-push every active layer before local validation, so immediately inspect the rewritten scope, run the relevant checks for every affected layer (see [pre-push-checks](../pre-push-checks/SKILL.md)), and do not merge or claim readiness until they pass. On a rebase conflict, use `gh stack rebase`, resolve and validate, then publish with `gh stack push`. If local and remote stack compositions diverge, stop and ask; never delete or recreate the remote stack automatically.
 - **Incremental merge-forward:** merge the trunk into the bottom affected branch, then propagate each updated parent into its child in bottom-to-top order and push normally. If the base advances during an in-progress merge, preserve that checkpoint before merging the newer tip.
 
-A history rewrite invalidates commit-hash assumptions: re-fetch exact heads and re-audit unresolved review threads, approvals, mergeability, and checks after the push. Never use raw `--force`.
+A history rewrite invalidates commit-hash assumptions: re-fetch exact heads and re-audit unresolved review threads, approvals, mergeability, and checks after the push. Never use raw `--force` or overwrite a remote head that advanced concurrently.
+
+## Respond to review across the stack
+
+Review comments may target several layers. Keep the chain linked through the official stack while fixing them.
+
+1. Work on each pull request's branch in its own worktree; parallel fixes never share a checkout.
+2. Verify every comment against the code before acting: a reviewer who flags the right symptom can still misdiagnose the cause.
+3. Fix each accepted finding on the pull request that introduced it, then propagate it upward through every affected child, with either refresh history above. A fix that originates in a higher layer leaves the lower one shipping the defect and hides the fix from its reviewer.
+4. Keep each review fix a distinct commit. A later rebase may change its commit hash, but do not amend a reviewed fix away; amend only your own work that is neither pushed nor reviewed.
+5. Treat a delegated fix's report as intent, not proof of what landed. Rerun the checks yourself on the actual tree, and prove a regression test fails on the unfixed code (introduce the regression, watch it fail, revert).
+6. Reply in the comment's review thread, not as a top-level comment, naming the fix and the current commit that carries it.
+
+Before landing, verify that every fixed pull request's current diff carries its correction at the layer that introduced the issue, each child's diff against its parent shows only that child's changes, and the relevant checks pass on every affected layer, not only the top.
 
 ## Preflight the merge range
 
@@ -80,10 +93,10 @@ gh stack merge <stack-number> --yes --merge   # whole stack
 gh stack merge <boundary-pr> --yes --merge    # explicitly requested partial landing
 ```
 
-Do not pass `--delete-branch`, retarget dependents manually, or issue per-pull-request merge commands. GitHub merges the selected range bottom-up and retargets any remaining layers. If the merge reports a blocker, resolve it through the owning pull request or stop and report it; never bypass requirements or fall back to `gh pr merge`.
+Do not pass `--delete-branch`, retarget dependents manually, or issue per-pull-request merge commands. GitHub merges the selected range bottom-up and retargets or rebases any remaining layers. A direct stack merge is all-or-nothing; when the trunk uses a merge queue, GitHub queues the selected range together but may land it in separate groups. If the merge reports a blocker, resolve it through the owning pull request or stop and report it; never bypass requirements or fall back to `gh pr merge`.
 
 ## Verify the landed state
 
-Wait until every selected pull request reports `MERGED`; a queued request is not a completed landing (`gh pr view <pr> --json number,state,mergedAt,mergeCommit`). For a partial landing, re-query the stack and verify the remaining pull requests are still linked in order, then re-check their heads, reviews, and CI.
+Wait until every selected pull request reports `MERGED`; a queued request is not a completed landing (`gh pr view <pr> --json number,state,mergedAt,mergeCommit`). For a partial landing, re-query the stack and verify that every remaining pull request is still linked in order and targets the trunk or the layer below it. GitHub may have rebased those layers, so re-check their heads, reviews, and CI.
 
 Delete branches only in a separate final pass after their pull requests report `MERGED`, and only when `gh pr list --state open --base <branch> --json number --jq length` returns `0`.

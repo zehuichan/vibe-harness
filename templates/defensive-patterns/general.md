@@ -75,11 +75,13 @@ The judged condition: does the change introduce a globally unique selected-state
 
 Shared state hangs on a service or an instance, so its owner is a named object with a lifecycle. A module-level cache, a singleton, a global weak map, or a `globalThis` property hides that owner and outlives every teardown, leaking state between instances and tests.
 
-The judged condition: name the service or instance that owns the value. If no owner can be named, decide the owner before implementing.
+The judged condition: name the service or instance that owns the value. If no owner can be named, decide the owner before implementing. Passing the value across modules goes through the owner's existing interface rather than a global namespace; a genuine need for a global lookup key goes to the domain owner together with its reclamation policy.
 
 ## A business capability owns itself
 
 A business capability lives in its own module and attaches through a registration point: a registry, a slot, a hook chain, or an event subscription. A runtime, controller, manager, or gateway carries generic orchestration and the registry's lifecycle; it never hardcodes a central table of business cases. Pure infrastructure (logging, transport, storage) is exempt.
+
+Establish whether a new distinction, field, or adapter is needed before choosing its owner; moving an unnecessary concept does not remove its maintenance cost. For required behavior, prefer an existing extension point near its producer or consumer when the local implementation adds little complexity: a producer extends a shared type or registry from its own module, without editing the module that declares it. Obligations common to all consumers belong in the shared owner.
 
 The judged condition: does the capability register itself, with the central layer only forwarding and managing lifetime? A new branch in a central layer must explain why it cannot live in the owning module.
 
@@ -89,11 +91,21 @@ if (pluginName === 'attachments') { /* wrong: business branch inside the manager
 
 ## Changes carry performance evidence
 
-A change that can move the cost of a hot path measures the changed path before and after (runtime, peak memory, steady-state memory) in one environment on one input, and reports the numbers with their conditions. "Nothing got slower overall" is not evidence, and a faster path elsewhere does not excuse a regression here. The baseline is the same path without the change, not an instrumented old version compared with an instrumented new one. Edits that touch no runtime path need no measurement. See the [`perf-evidence`](../../.agents/skills/perf-evidence/SKILL.md) skill.
+A change that can move the cost of a hot path measures the changed path before and after (runtime, peak memory, steady-state memory) in one environment on one input, and reports the numbers with their conditions. "Nothing got slower overall" is not evidence, and a faster path elsewhere does not excuse a regression here. The baseline is the same path without the change, not an instrumented old version compared with an instrumented new one. Run the profile's `commands.bench` scenario that owns the path before and after, and record the command, the numbers, the environment, and the input size so the baseline can be rebuilt.
+
+The judged condition: under one environment and one input, any of the three metrics is significantly worse on the changed path.
+
+A CI benchmark is an alert, not a pass: a green result does not prove neutrality for a path it does not model, and a red one is located by rerunning the owning scenario and profiling its segments locally. Edits that touch no runtime path need no measurement. Production performance code (chunk scheduling, yielding, timing that drives batching) is not benchmark instrumentation to delete opportunistically. An architectural change that genuinely costs performance states the measured cost and the reason, and the domain owner approves it; "the layering needed it" is not a self-service reason.
+
+```text
+CI benchmark reported green, so the change is accepted as performance-neutral.
+```
+
+That form ships a real regression in a path the benchmark does not model. See the [`perf-evidence`](../../.agents/skills/perf-evidence/SKILL.md) skill.
 
 ## Migrations preserve behavior
 
-A migration or module split keeps externally observable behavior equal: error codes, diagnostics, data-flow order, and UI timing are compared item by item. Moving code is preferred over rewriting it. A defect found during a migration is fixed as its own change instead of folded into the move. Where full equality is impossible, the change lists each difference and how it is verified.
+A migration or module split keeps externally observable behavior equal: error codes, diagnostics, data-flow order, and UI timing are compared item by item. Moving code is preferred over rewriting it. A module or export-path change is a carrier change rather than a behavior change, and a behavior change is its own change. A defect found during a migration is fixed as its own change instead of folded into the move. Where full equality is impossible, the change lists each difference and how it is verified, and the domain owner approves it.
 
 ## Dispose must reach quiescence, not just request it
 

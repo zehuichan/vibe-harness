@@ -23,7 +23,7 @@ Internal APIs whose consumers are all updated in the same change need no guide. 
 
 `docs/upgrade-guide/v<version>/<item>/guide.md`
 
-- `<version>` is the project's current released version as recorded in its package manifest or version file when you write the guide. The guide describes the upgrade from that release to the next one.
+- `<version>` is the exact version string in the project's package manifest or version file at the time you write the guide, even if that version was bumped before its release or carries a pre-release suffix. The guide describes the upgrade from that version to the next one.
 - `<item>` is a kebab-case name for the changed surface, for example `config-key-rename`.
 - Each item directory holds exactly `guide.md`, plus its translated counterpart when the profile enables `surfaces.bilingual-docs`; no index and no attachments.
 

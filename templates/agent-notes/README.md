@@ -34,7 +34,9 @@ Add or update an Agent Note in the same change only for lasting decision rationa
 
 Updating the note that already owns the decision satisfies the rule; do not create a duplicate. Mechanical or local edits, including local UI presentation changes, are exempt. A note is never edited into a different decision: supersede it with a new note and cross-link both, unless the old note is fully consolidated under the rule below.
 
-An implemented note that is fully superseded may be consolidated into the current owning note and deleted. Before deletion, the owner preserves every unique rationale, alternative, consequence, required verification, and named coverage gap, and every inbound link is repaired. Partial supersession does not qualify: keep both notes cross-linked and keep every remaining fact current.
+An implemented note that is fully superseded may be consolidated into the current owning note and deleted. Before deletion, the owner preserves every unique rationale, alternative, consequence, required verification, and named coverage gap, and every inbound link is repaired. Partial supersession does not qualify: keep both notes cross-linked and keep every remaining fact current. Consolidation must not rewrite the old note into its opposite or leave git history as the only copy of its rationale.
+
+A feature-addition note may be consolidated into the later removal note only when the feature is absent from production code, configuration, schemas, durable or wire formats, migration, and compatibility behavior; no current documentation presents it as available; and no test exercises it as supported behavior. Removal rationale and tests that verify absence may remain. The removal owner preserves the original motivation, why it no longer justified the feature, alternatives to full removal, the capability given up, conditions for reintroduction, and verification of complete absence. Removing one transport, default, implementation, or presentation is partial supersession, as is any surviving durable data or compatibility handling.
 
 ## The file format
 
@@ -52,15 +54,21 @@ The status is `proposed`, `implemented`, or `rejected — <why, in one line>`, a
 
 ### Body
 
-Every note opens its body with `## Problem`, written to stand without the solution. Recurring sections use these names; bespoke technical sections (module topology, wire formats, schemas) may sit between them.
+Every note opens its body with `## Problem`, written to stand without the solution. Recurring sections use these names and nothing else; bespoke technical sections (module topology, wire formats, schemas) may sit between them.
 
 - `proposed/`: `## Problem`, `## Proposal`, `## Alternatives considered`, `## Acceptance criteria`, `## Risks`. The proposal may use the future tense; acceptance criteria state the observable state that means done; risks cover what could go wrong and what the change knowingly gives up.
 - `implemented/`: `## Problem`, `## Decision`, `## Alternatives considered`, `## Consequences`. The decision describes shipped reality in the present tense; consequences record what the trade-off cost and bought. `## Proposal`, `## Plan`, `## Migration plan`, and `## Acceptance criteria` do not appear in an implemented note. A present-tense `## Testing` or `## Verification` section may record what pins the behavior.
-- `rejected/`: the proposal frozen as it was, with the verdict on the `Status:` line.
+- `rejected/`: the proposal frozen as it was, with the verdict on the `Status:` line. Only the header, the `## Problem` opener, a `## Proposal` section, and the alternatives requirement below apply.
+
+Archived notes keep the format they had when archived.
 
 ### Alternatives considered
 
-Every note has an `## Alternatives considered` section: each genuine alternative and why it lost, as one bold-led paragraph per alternative or a `### Why not <X>?` subsection per contested one. A decision recorded without what it beat invites re-litigation. Alternatives are recorded, never invented.
+Every note has an `## Alternatives considered` section: each genuine alternative and why it lost, as one bold-led paragraph per alternative or a `### Why not <X>?` subsection per contested one. A decision recorded without what it beat invites re-litigation. Alternatives are recorded, never invented: a note written before this format whose alternatives cannot be reconstructed from the record carries this exact comment in place of the section.
+
+```markdown
+<!-- agent-note-format: alternatives-not-recorded (pre-format Agent Note) -->
+```
 
 ### Moving between lifecycles
 

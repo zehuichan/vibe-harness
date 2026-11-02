@@ -6,8 +6,15 @@ These standing orders apply to every agent session. Project facts (commands, ena
 
 - Run the narrowest check that would fail for the regression you are preventing. Leave exhaustive coverage to CI unless the user asks or the change is genuinely repository-wide. Before pushing, follow `pre-push-checks`; report only commands you actually ran.
 - Tests describe behavior. When behavior changes on purpose, change its tests and state why in the pull request.
-- Put every mechanically checkable rule into an executed check, and prove each new or changed check rejects an invalid case.
+- Put every mechanically checkable rule into an executed check, and prove each new or changed check rejects an invalid case. Use narrow, justified exceptions instead of disabling a rule globally.
 - A change that can move the cost of a hot path carries before-and-after measurements (`perf-evidence`).
+- When a required command fails because the agent sandbox blocks credentials, network, inter-process communication, or file watching, retry it unchanged with the narrowest escalation the host offers. Require evidence that the sandbox caused the failure; never escalate to bypass a test failure or the product's own sandbox.
+- Never commit credentials, and never print secret values.
+
+### History
+
+- Split independent changes. Fix a defect in the change that introduced it, then propagate the fix to the changes built on it.
+- Unless the project rules outside this block restrict it, branches may merge-forward or rebase, including after review. A rewrite publishes with an exact `--force-with-lease` and aborts when the remote moved; raw `--force` is never used.
 
 ### Design
 
@@ -25,6 +32,7 @@ These standing orders apply to every agent session. Project facts (commands, ena
 
 - Comments and documentation state complete current contracts (behavior, failure, timing, ownership), not reasoning transcripts, change history, or review dialogue (`prose-standard`, `trim-cot-leakage`).
 - Each fact has one home; elsewhere, link to it ([documentation standard](docs/AGENTS.md), `docs-standard`).
+- Documentation accompanies every code change: a change to a documented type, configuration key, command, or behavior updates its owning page and inline contract documentation in the same change.
 - Record durable decision rationale (what was chosen, what lost, and what it cost) as an [Agent Note](.agents/notes/README.md) (`agent-notes`). Mechanical and local edits are exempt.
 - Record every externally perceptible breaking change in an upgrade guide in the same change (`upgrade-guide`).
 

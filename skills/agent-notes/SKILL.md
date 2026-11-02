@@ -26,7 +26,7 @@ Write or update a note only for lasting decision rationale: why one design won, 
 
 Before drafting, search the active tree (`proposed/`, `implemented/`, `rejected/`) for notes covering the same decision, mechanism, or rejected alternative. Classify each match while writing the new note:
 
-- **Full supersession of an implemented note:** consolidate (the new owner preserves every unique rationale, alternative, consequence, verification, and coverage gap, then the old note is deleted and inbound links are repaired) or archive it in the same change.
+- **Full supersession of an implemented note:** consolidate under the consolidation rules in `.agents/notes/README.md` (the new owner preserves every unique rationale, alternative, consequence, verification, and coverage gap, then the old note is deleted and inbound links are repaired; a feature-addition note folds into a removal note only when the feature is completely absent) or archive it in the same change.
 - **Partial supersession:** keep both active, cross-link them, and update every fact that remains current.
 - **Obsolete proposal:** move it to `rejected/` with an honest one-line reason.
 - **Obsolete rejection:** delete it when it no longer prevents a plausible mistake.
@@ -35,26 +35,31 @@ Do not defer a known match to a later audit.
 
 ## Classify existing notes by future value
 
-When auditing or pruning, apply these outcomes per lifecycle:
+When auditing or pruning, establish whether each rationale still owns or constrains anything from current code, configuration, module docs, generated catalogs, newer Agent Notes, and inbound links. Then apply these outcomes per lifecycle:
 
 - **Implemented, delete:** notes that only describe small UI adjustments or purely mechanical changes. Repair or remove inbound links. Local bug fixes, performance changes, new capabilities, and substantive behavior or ownership decisions do not qualify merely because their implementation was small. Apply this test before keep or archive.
-- **Implemented, keep active:** rationale, alternatives, negative guarantees, durable or wire semantics, ownership boundaries, security rules, or reintroduction conditions likely to guide a future change. Classify the decision, not the size of its implementation: a mechanical rename can still record a lasting naming or compatibility rule.
+- **Implemented, keep active:** rationale, alternatives, negative guarantees, durable or wire semantics, ownership boundaries, security rules, or reintroduction conditions likely to guide a future change. Classify the decision, not the mechanics of its implementation: a mechanical rename or type extraction can still record a lasting naming, compatibility, or ownership rule.
 - **Implemented, archive:** a substantive historical decision that is complete and unlikely to guide future work, but whose rationale still warrants preservation.
 - **Proposed, never archive:** keep a live proposal active; if it is no longer worth pursuing, reject it with an honest reason.
-- **Rejected, keep only as a guardrail:** retain a rejection only while the losing proposal remains a tempting, meaningful mistake and the note explains why it loses; otherwise delete it.
+- **Rejected, keep only as a guardrail:** retain a rejection only while the losing proposal remains a tempting, meaningful mistake and the note explains why it loses.
+- **Rejected, delete:** delete the note, with any translated counterpart, when the rejected idea is obsolete, superseded, no longer plausible, or unlikely to prevent re-litigation. Repair or delete inbound links.
 
 Do not archive toward a quota. Inspect every note in scope, classify analogous groups under one principle, and record genuinely borderline decisions for the report.
 
-Calibration: a note about a collapsed sidebar control's styling is deleted however long it is; a note establishing that sessions are event-sourced, or naming the single owner of a storage directory, stays active however short it is; a note recording why two packages must not be merged stays as a guardrail while merging them remains tempting.
+Calibration:
+
+- Delete a note about a collapsed sidebar control's styling however long it is, and a note that records a completed function relocation with unchanged behavior.
+- Keep active a note establishing that sessions are event-sourced, or naming the single owner of a storage directory, however short it is; a borderline process note while it still guides tuning; and a note that states the condition for reintroducing a removed capability until that condition is met.
+- Keep a rejected note recording why two packages must not be merged while merging them remains tempting; delete a rejected note whose premise is obsolete or whose question a later decision settled.
 
 ## Archive an implemented note
 
 1. Move the complete note, with any translated counterpart, from `implemented/<class>/` to `archived/<class>/`.
-2. Make no body edits. Insert only `Archived: YYYY-MM-DD` immediately below `Status: implemented` in each language file, with the same date.
+2. Make no body edits. Insert only `Archived: YYYY-MM-DD` immediately below `Status: implemented` in each language file, with the same date. Do not translate, reformat, update facts, or fix title punctuation or layout first; existing formatting is preserved, not a prerequisite for archival.
 3. Search active prose for inbound links. Redirect them to current authority, retarget them to the archived path only when the historical snapshot is intentionally cited, or delete them. Never verify or repair links out of the archived note.
 
 After archival, never edit, move, translate, reformat, or delete the note. Archived notes remain valid link targets but are not authority for current behavior.
 
 ## Validate and report
 
-Run the profile's `commands.docs-check` and `git diff --check`, and confirm that every changed relative link resolves. Report notes created or updated, notes kept active, deleted, archived, or rejected, and every borderline case with the chosen outcome.
+Run the profile's `commands.docs-check` and `git diff --check`, and confirm that every changed relative link in active prose resolves; select any further evidence through [pre-push-checks](../pre-push-checks/SKILL.md). Link checking should skip outbound links from `.agents/notes/archived/`. If `commands.docs-check` reports a broken link inside an archived note, report it instead of editing the note, and never claim archived outbound links are valid. Report notes created or updated, notes kept active, deleted, archived, or rejected, and every borderline case with the chosen outcome.

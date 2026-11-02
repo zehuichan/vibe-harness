@@ -5,7 +5,7 @@ description: Use during code review or focused audits of plugins, services, comp
 
 # Ownership and lifecycle review
 
-A focused semantic review of who owns each piece of state and each side effect, and whether teardown really completes. Start from the entry points the lifecycle framework invokes (plugin `apply` or activation functions, service constructors, component mount hooks, server startup), then trace module initialization, registered services, listeners, effects, disposers, and the calls reachable from those roots. Exclude unrelated helpers, build tools, and tests as finding targets, but read tests and the framework's implementation to establish behavior. Do not report defects in vendored code.
+A focused semantic review of who owns each piece of state and each side effect, and whether teardown really completes. Start from the entry points the lifecycle framework invokes (plugin `apply` or activation functions, service constructors, component mount hooks, server startup), then trace module initialization, registered services, listeners, effects, disposers, and the calls reachable from those roots. Exclude unrelated helpers, build tools, and tests as finding targets, but read tests and the framework's implementation to establish behavior. Report a defect in generated code against the source that generates it. Do not report defects in vendored code.
 
 ## Sources of truth
 
@@ -34,7 +34,7 @@ Registrations made through the framework's own scoped registration API are alrea
 
 ## P0: cleanup dependency released before consumer completion
 
-Any service call or event delivery required to finish cleanup is a lifecycle dependency. Keep its resources and listeners usable until the consumer has settled, including final result publication and durable writes. A provider's disposal finishing after its consumers' does not prove its resources survived their cleanup: many frameworks start sibling disposers concurrently, and declaring a dependency, reversing registration order, or holding a reference does not fix that race.
+Any service call or event delivery required to finish cleanup is a lifecycle dependency. Keep its resources and listeners usable until the consumer has settled, including final result publication and durable writes. A provider's disposal finishing after its consumers' does not prove its resources survived their cleanup: many frameworks start sibling disposers concurrently, and declaring a dependency, reversing registration order, or holding a reference does not fix that race. A required completion listener registered under the consumer's own scope can also be removed alongside the operation it is meant to observe.
 
 Require explicit ownership and awaited sequencing:
 
@@ -42,7 +42,9 @@ Require explicit ownership and awaited sequencing:
 2. Settle admitted consumers while their dependencies remain usable.
 3. Drain and release the resources.
 
-Express that order with one composed owner (a parent that awaits its consumer children before releasing resources, or a single disposal function that yields the exact disposers it captured), and verify the actual captured disposer identities: wrapping an independently registered disposer does not transfer ownership of the original. Check failure paths too: one cleanup error must not skip required abort, settlement, or release.
+Express that order with one composed owner (a parent that awaits its consumer children before releasing resources, or a single disposal function that yields the exact disposers it captured), and verify the actual captured disposer identities: wrapping an independently registered disposer does not transfer ownership of the original. In a composed provider, acquire resources and required completion listeners first, publish the service after them, and register any admission gate last, so reverse disposal stops admission, then withdraws the service while its consumers are still registered, then releases the resources.
+
+That ordering covers provider withdrawal, not every shutdown. A framework may remove a consumer from its registry as soon as the consumer starts disposing, before its cleanup finishes, so withdrawal can miss a consumer that is already disposing. For root or enclosing-owner shutdown and for independently started consumer cleanup, an explicit owner retains and awaits the actual consumer disposal tasks before releasing their resources. Check failure paths too: one cleanup error must not skip required abort, settlement, or release.
 
 Do not report a missing dependency declaration alone, a merely possible late call with no reachable consumer, or intentional suppression of optional notifications. Required persistence and completion observers are not optional notifications.
 
@@ -50,6 +52,6 @@ For a regression test: pause the consumer immediately before its last dependency
 
 ## Reporting
 
-Report only substantiated P0 violations of the three rules. Give a tight source location, the lifecycle root, the consumer and resource owner, the failing interleaving, the observable impact, the correction, and a deterministic acceptance test. Consolidate multiple locations implementing one failure. State the inspected scope, rejected candidates, and reproduction limits; do not claim exhaustive safety from a pattern search. If no violations are established, say that no P0 violations were found in the inspected scope and name any material evidence gaps.
+Report only substantiated P0 violations of the three rules. Give a tight source location, the lifecycle root, the consumer and resource owner, the failing interleaving, the observable impact, the correction, and a deterministic acceptance test. Consolidate multiple locations implementing one failure. State the inspected scope, rejected candidates, and reproduction limits; do not claim exhaustive safety from a pattern search. If no violations are established, say that no P0 violations were found in the inspected scope and name any material evidence gaps. When a caller supplies a structured output schema, use it with these rule names and severities, and report conflicting rule instructions before running an automated audit.
 
 If asked to record unresolved findings, use proposed Agent Notes (see [agent-notes](../agent-notes/SKILL.md)); otherwise return the findings directly.

@@ -38,24 +38,26 @@ For each candidate, record the current owner, the effective producer and consume
 - a narrower public or product behavior with an explicit loss;
 - a protected obligation or insufficient evidence.
 
-Reject a candidate that breaks a retained obligation, merely relocates the same complexity, or has no meaningful reduction. Refresh the evidence before re-proposing a previously rejected candidate. Small local improvements belong in actionable `TODO`/`FIXME` comments, not standalone design records.
+Reject a candidate that breaks a retained obligation, merely relocates the same complexity, or has no meaningful reduction. Read rejection reasons at the level of the proposed change: a stale inventory or a mixed proposal's rejected behavior does not settle every independent item. Refresh the evidence before re-proposing a previously rejected candidate. Small local improvements belong in actionable `TODO`/`FIXME` comments, not standalone design records.
 
 ## Preserve ownership and failure semantics
 
-For copies, freezes, validators, and callback captures, name the value's origin, next owner, and trust boundary. Typed same-process calls ordinarily borrow read-only values; parsers, configuration loaders, queues, model or tool JSON, files, workers, processes, and wire decoders own or validate their inputs.
+For copies, freezes, validators, and callback captures, name the value's origin, next owner, and trust boundary. Typed same-process calls ordinarily borrow read-only values; parsers, configuration loaders, queues, model or tool JSON, files, workers, processes, and wire decoders own or validate their inputs. Hostile-getter or callback-replacement tests do not establish a requirement by themselves. A frozen root does not prove its descendants immutable, and equal ids do not prove object identity.
 
-For asynchronous machinery, map each promise, flag, cancellation path, disposer, and reservation to its owner and transition. Collapse mechanisms only when they express the same fact. Preserve synchronous publication and rollback, callback containment, first-terminal-outcome arbitration, worker and process ownership, and dispose-to-quiescence where required. Durable start and end markers can record real facts even when a renderer ignores them.
+For asynchronous machinery, map each promise, flag, cancellation path, disposer, and reservation to its owner and transition. Collapse mechanisms only when they express the same fact. Preserve synchronous publication and rollback, callback containment, first-terminal-outcome arbitration, worker and process ownership, and dispose-to-quiescence where required. Durable start and end markers can record real facts even when a renderer ignores them; dropping interrupted work is a capability loss, not redundant-log cleanup.
 
 ## Replace infrastructure only for a net reduction
 
-Search existing dependencies and the standard library before adding a package. Identify the exact implementation and dedicated tests the replacement deletes, its maintenance and transitive cost, and every residual behavior the glue must preserve.
+Search existing dependencies and the standard library available at the project's minimum supported runtime version before adding a package. Identify the exact implementation and dedicated tests the replacement deletes, its maintenance and transitive cost, and every residual behavior the glue must preserve.
 
-Exercise the mismatches most likely to defeat the replacement: protocol truncation, cancellation and teardown, configured bounds, deterministic test clocks, platform packaging, and source versus built entry points. A library that covers framing but requires rebuilding the same framing to enforce a size limit is not a simplification.
+Exercise the mismatches most likely to defeat the replacement: protocol truncation, cancellation and teardown, configured bounds, deterministic test clocks, platform packaging, and source versus built entry points. A library that covers framing but requires rebuilding the same framing to enforce a size limit is not a simplification. An accepted edge-behavior change belongs in the proposal and relevant tests. Do not re-prove a dependency's generic specification while omitting tests for the project-specific glue around it.
 
 ## Record, consolidate, and validate
 
-Use [prose-standard](../prose-standard/SKILL.md) when prose is in scope. Update affected READMEs, API docs, model-visible catalogs, configuration, snapshots, and generated files with their owning change.
+Use [prose-standard](../prose-standard/SKILL.md) when prose is in scope. Remove code-restating or remotely owned explanations while preserving local behavior, timing, ownership, and failure obligations. Update affected READMEs, API docs, model-visible catalogs, configuration, snapshots, and generated files with their owning change.
 
-A substantial proposal is a proposed Agent Note (see [agent-notes](../agent-notes/SKILL.md)) with concrete consumer evidence, the removed maintenance cost, the capability given up, and observable acceptance conditions. Update an existing owner when the decision is the same; do not create duplicate notes.
+A substantial proposal is a proposed Agent Note (see [agent-notes](../agent-notes/SKILL.md)) with concrete consumer evidence, the removed maintenance cost, the capability given up, and observable acceptance conditions. Update an existing owner when the decision is the same; do not create duplicate notes. A code survey does not imply a repository-wide note audit; preserve partial supersessions and current durable, wire, compatibility, or rejected-alternative obligations.
 
-Select validation through [pre-push-checks](../pre-push-checks/SKILL.md). Report the surveyed areas, supported candidates, meaningful rejections or deferrals, notes added or consolidated, and commands actually run. Do not describe an unverified search as exhaustive.
+When folding simplifications from another branch, compare its independent diff against the target base, port only supported proposals that do not overlap, and consolidate overlapping rationale. Closing another pull request requires authorization or clear ownership of that housekeeping.
+
+Select validation through [pre-push-checks](../pre-push-checks/SKILL.md). Report the surveyed areas, supported candidates, meaningful rejections or deferrals, notes added, consolidated, retained, or removed, and commands actually run. Use a draft pull request while the survey is still expanding, and do not describe an unverified search as exhaustive.

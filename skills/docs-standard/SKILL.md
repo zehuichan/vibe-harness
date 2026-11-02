@@ -5,7 +5,7 @@ description: Create, restructure, review, audit, or fact-check Markdown document
 
 # Documentation standard
 
-Make every page searchable, newcomer-readable, and exact enough for agents and maintainers. The tiers, writing rules, budgets, and slop checklist live in `docs/AGENTS.md`; this skill owns the workflow for applying them. Preserve one owner per fact: source, tests, generated catalogs, READMEs, guides, and Agent Notes each keep their own kind of truth. This is guidance, not a checklist.
+Make every page searchable, newcomer-readable, and exact enough for agents and maintainers. The tiers, writing rules, budgets, and slop checklist live in `docs/AGENTS.md`; this skill owns the workflow for applying them. Preserve one owner per fact: source, tests, generated catalogs, READMEs, guides, and Agent Notes each keep their own kind of truth. The workflow and quality criteria are guidance; the fact-check procedure is mandatory for every operation claim.
 
 ## Workflow
 
@@ -49,13 +49,13 @@ Do not apply a universal word limit to exhaustive references; measure entry-path
 
 ## Audit the corpus
 
-Apply the authoring order from `docs/AGENTS.md` to every human-facing document in scope (not to Agent Notes): locate the document and state its subject; set its permitted detail and move deeper explanations to owning descendants; classify tutorial or reference from intended use, not path; split substantial mixed forms. A move is atomic with every inbound link repaired in the same change; generated catalogs are never hand-edited.
+Apply the authoring order from `docs/AGENTS.md` to every human-facing document in scope (not to Agent Notes): locate the document and state its subject; set its permitted detail and move deeper explanations to owning descendants; classify tutorial or reference from intended use, not path; split substantial mixed forms. A target structure is not permission for an opportunistic mass move: move one coherent topic at a time, atomically with every inbound link repaired in the same change, and preserve published routes or add redirects for them. Generated catalogs are never hand-edited.
 
 Then hunt the slop checklist in `docs/AGENTS.md`, cheapest probes first: use [trim-cot-leakage](../trim-cot-leakage/SKILL.md) for reasoning-transcript leakage, search distinctive phrases for duplicated rules, replace hand-written catalogs with their authoritative owners, and remove spec-speak from implemented Agent Notes. If removing prose would change promised behavior rather than its explanation, propose the behavior change first (see [find-simplifications](../find-simplifications/SKILL.md)). Keep every load-bearing rule, preferably as one to three lines plus a link to its rationale.
 
 ## Detailed references
 
-- [Page structure and style](references/page-structure.md): page order, section progression, folding, controlled technical English, and emphasis.
+- [Page structure and style](references/page-structure.md): page order, section progression, the module README skeleton, folding, controlled technical English, and emphasis.
 - [Review criteria](references/review.md): the newcomer test, evidence review, and README review.
 
 Use [prose-standard](../prose-standard/SKILL.md) for sentence-level contract coverage and editorial judgment.

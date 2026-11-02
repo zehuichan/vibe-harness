@@ -1,6 +1,6 @@
 # Defensive patterns
 
-Each page in this directory states rules this repository enforces in review: the rule, the defect it prevents, the condition a reviewer judges, its boundary, and who approves an exception. Read the page for the artifact you are about to change before you change it.
+Each page in this directory states rules this repository enforces in review: the rule, the defect it prevents, the condition a reviewer judges, and its boundary. Unless a rule names another approver, an exception goes to the owner of the affected domain, not to the author of the change. Read the page for the artifact you are about to change before you change it.
 
 ## Why these rules
 
@@ -16,6 +16,6 @@ Five habits cover most of what follows; each page applies them to one kind of ar
 |---|---|
 | Timing, state representation, shared ownership, capability placement, migrations, performance, disposal, callbacks, subprocesses, filesystem cleanup | [general.md](general.md) |
 
-Add a page per artifact family when the project accumulates rules that only apply there (for example client components, remote APIs, persistence, or package exports), and add its row to the table. Each rule on a page states what must hold, the judged condition, its boundary, and a correct and a wrong example.
+Add a page per artifact family when the project accumulates rules that only apply there (for example client components, remote APIs, persistence, or package exports), and add its row to the table. Each rule on a page states what must hold, the judged condition, and its boundary, with a correct and a wrong example where the distinction is not obvious from the rule.
 
 The [`code-review`](../../.agents/skills/code-review/SKILL.md) skill reads this directory when judging a change; decision rationale belongs in Agent Notes and the [documentation standard](../AGENTS.md) owns placement.

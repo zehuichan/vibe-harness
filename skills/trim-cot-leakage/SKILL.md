@@ -26,7 +26,7 @@ For every suspect passage ask: **could a reader at HEAD, with no access to any s
 
 Unaided passes fail in both directions, deleting durable references and keeping dead ones. Apply these keep rules; [the examples](references/examples.md) calibrate each.
 
-- **Issue references** (`#1470`, `TODO(name):`, "issue #N owns the follow-up") resolve at HEAD; keep them on any surface, including READMEs.
+- **Issue references** (`#1470`, `TODO(name):`, "issue #N owns the follow-up") resolve at HEAD; keep them on any surface, including READMEs. Do not delete them or relocate them to Agent Notes; what Agent Notes and postmortems additionally sanction is citing merged pull requests.
 - **Merged pull request and issue citations inside Agent Notes and postmortems** are sanctioned evidence.
 - **Suppression justifications** (lint-disable reasons, coverage-ignore reasons, empty-catch explanations) are required prose; fix a false reason, never delete it.
 - **Counterfactual-present regression pins:** "without X, Y happens", "a naive X would…".

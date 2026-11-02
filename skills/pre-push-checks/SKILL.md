@@ -1,6 +1,6 @@
 ---
 name: pre-push-checks
-description: Use before pushing, force-pushing, marking a pull request ready for review, or claiming checks pass, to select the smallest tests and checks that cover the outgoing diff without reflexively running the full repository suite, and to push history rewrites safely.
+description: Use before pushing, force-pushing, marking a pull request ready for review, or claiming checks pass, and immediately after a tool that rewrites and publishes in one step (such as a stacked-pull-request sync) has pushed rewritten branches, to select the smallest tests and checks that cover the outgoing diff without reflexively running the full repository suite, and to push history rewrites safely.
 ---
 
 # Pre-push checks
@@ -10,17 +10,17 @@ Run relevant local evidence once before a push. The sole ordering exception is a
 ## Inspect the outgoing change
 
 1. Confirm the checkout and branch: `git status --short --branch` and `git rev-parse --show-toplevel`.
-2. Verify the live pull-request base (or stack parent), fetch that ref, and list the complete scope against it with the profile's `commands.change-scope`. Never guess a base. Include staged, unstaged, and untracked paths as well as committed ones.
+2. Verify the live pull-request base (or stack parent), fetch that ref, and list the committed scope against it with the profile's `commands.change-scope`. Never guess a base. Unless that command already reports the worktree, add `git status --short` for staged, unstaged, and untracked paths. To inspect a commit other than `HEAD`, use `git diff --name-status <base>...<head>`.
 3. After merging a changed base, rerun the scope listing, reassess which behavior the combined scope can affect, and rerun only the checks the merge invalidated.
 
 ## Select relevant evidence
 
-There is no universal local baseline beyond the project's git hooks. Every behavior change needs the narrowest available test or purpose-built check that would fail for its regression; add broader checks only for surfaces the diff actually reaches.
+There is no universal local baseline beyond the project's git hooks; read the profile's "Hooks and CI" section to learn what they already run. Every behavior change needs the narrowest available test or purpose-built check that would fail for its regression; add broader checks only for surfaces the diff actually reaches.
 
 When the change adds or alters a resource-owning or asynchronous test, fixture, or CI path, use [test-reliability](../test-reliability/SKILL.md) first to decide whether restoration, negative-control, quiescent-teardown, or concurrent-process evidence applies.
 
 - **Source behavior:** run `commands.focused-test` on the owning test file or test name. Add adjacent tests when a shared contract changes; leave repository-wide coverage to CI unless the change is genuinely cross-cutting or the user asks.
-- **Types and public exports:** run `commands.typecheck`, and confirm it covers test and script files as well as shipped sources: a check scoped to package sources alone does not prove their types. If it does not, run the project's check that does before claiming completion. For manifests, exports, build configuration, or entry points, also run `commands.build` and a smoke run of the built artifact.
+- **Types and public exports:** run `commands.typecheck`, and confirm it covers test and script files as well as shipped sources: a check scoped to package sources alone does not prove their types. If it does not, run the project's check that does before claiming completion. When the check reads generated or prebuilt declarations, rebuild missing, stale, or partial output first; a check run against stale output is not evidence. Loose typing in a test double is not type evidence; keep that loosening in the test helper, never in production types or global compiler flags. For manifests, exports, build configuration, or entry points, also run `commands.build` and a smoke run of the built artifact.
 - **Documentation, Agent Notes, or doc-linked comments:** run `commands.docs-check` and `git diff --check`.
 - **Model-, user-, CLI-, or terminal-visible output:** run the focused snapshot or end-to-end scenario that owns the output, as named in the profile.
 - **Real provider or external-service behavior:** run `commands.e2e` for the relevant target when credentials are available; never print secrets.
@@ -31,11 +31,15 @@ When filtering tests, check the reported selected-test count before treating a f
 
 ### Focus coverage on the affected source
 
-Test selection and coverage selection are separate. When coverage is relevant, name both the owning tests and the source files whose coverage they must prove, using the runner's coverage-include option. Do not pass "no tests is a pass" flags, lower thresholds, or narrow the coverage scope merely to hide an uncovered affected file. Dependency-graph test discovery cannot find behavior reached only through configuration, dynamic loading, subprocesses, workers, built artifacts, or external providers; select those tests explicitly.
+Test selection and coverage selection are separate. When coverage is relevant, name both the owning tests and the source files whose coverage they must prove, using the runner's coverage-include option. Include an exact source file when the behavior is confined to one module, and pass every owning test needed to exercise the included scope; the configured thresholds still apply inside it.
+
+When the owning tests are unclear, use the runner's dependency-graph discovery (for example a "related tests" mode) to find candidates, then inspect the selection before treating the run as evidence. Discovery cannot find behavior reached only through configuration, dynamic loading, subprocesses, workers, built artifacts, or external providers; select those tests explicitly.
+
+Do not pass "no tests is a pass" flags, lower thresholds, or narrow the coverage scope merely to hide an uncovered affected file. If an included scope fails because one focused test does not cover it, add its other owning tests, or narrow the scope only when the excluded modules cannot be affected by the change.
 
 ## Full local rehearsal
 
-Run the complete local approximation of CI (`commands.full-test`, `commands.coverage`, `commands.lint`, `commands.build`) only when the user explicitly asks, while diagnosing a CI failure, or when the change spans the repository so broadly that no narrower set is credible.
+Run the complete local approximation of CI only when the user explicitly asks, while diagnosing a CI failure, or when the change spans the repository so broadly that no narrower set is credible. Take its inventory from the current CI workflow definitions (see the profile's "Hooks and CI"), usually `commands.full-test`, `commands.coverage`, `commands.lint`, and `commands.build`, not from a remembered or aggregate command.
 
 ## Protect history-rewriting pushes
 
@@ -69,4 +73,4 @@ For a combined rewrite and publish, use the post-sync validation sequence instea
 
 For a hosted pull request, inspect remote CI after the push (for example `gh pr checks` when `vcs.pr-cli` is `gh`). Report pending checks as pending, and inspect failures before attributing them to the branch or the environment.
 
-When a GitHub pull request reports no checks at all, read its mergeability (`gh pr view <number> --json mergeable,mergeStateStatus`) before suspecting the push: GitHub creates no pull-request workflow runs while a pull request is conflicting. Resolving the conflict is the only fix; empty commits, draft toggles, and revert-and-restore pushes leave the runs absent and add junk history.
+When a GitHub pull request reports no checks at all and the Actions API lists no workflow runs for its head commit (`/actions/runs?head_sha=<sha>` returns `total_count: 0`), read its mergeability (`gh pr view <number> --json mergeable,mergeStateStatus`) before suspecting the push: GitHub creates no pull-request workflow runs while a pull request is conflicting. Resolving the conflict is the only fix; empty commits, draft toggles, and revert-and-restore pushes leave the runs absent and add junk history. When the branch cannot be merged locally yet, list the conflicting paths with `git merge-tree --write-tree HEAD origin/<base>`.

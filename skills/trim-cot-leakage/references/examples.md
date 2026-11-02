@@ -196,6 +196,8 @@ Enumerate a passage's propositions before trimming it.
 
 **Right:** "A hypothetical IPC-based shell (no such shell exists) would subclass the executor and override `spawn`."
 
+Deleting the future marker alone turns a design illustration into a claim that the class ships. Mark the hypothetical explicitly instead of just removing the future tense.
+
 ### Deleting a true fact with the transcript around it
 
 **Original:** "The notice narrates the check order; the notice text is also what the doc compiler checks against."
