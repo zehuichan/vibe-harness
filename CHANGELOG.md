@@ -2,6 +2,17 @@
 
 Each release lists changes that affect installed repositories. Upgrade agents read the entries newer than the `kit.ref` in `.agents/vibe-harness.lock.json`; entries name seed-template changes explicitly because upgrades never rewrite seeds.
 
+## 0.1.6
+
+- Skill text updates distilled from the source project's UI review restructure. Locally edited copies are three-way merged on upgrade.
+  - `ui-ux-review` (optional): a UI change workflow whose required inspection scales from local edits to shared components to explicit comprehensive reviews, minimum rendered checks for color, layout, interaction, and shared components, a rule-owner map, component geometry, and criteria for changing project UI rules. Alignment, spacing, and icon rules move into `references/`, joined by `references/review-workflow.md` (comprehensive review procedure) and `references/review-cases.md` (design principles and worked cases).
+  - `responsive-ui` (optional): visual reviews select the impact scope first and compare wrapping in the context of the whole page or modal.
+  - `code-review` and `pre-push-checks`: when `surfaces.ui` is enabled, verify the `ui-ux-review` minimum checks for the cumulative visible diff without demanding full-audit records for ordinary changes.
+- Managed templates, rewritten on upgrade:
+  - `AGENTS.md` block: when `surfaces.ui` is enabled, `ui-ux-review` is the design and review entry point for UI changes.
+- Seed templates: unchanged; existing installations need no edit.
+- No profile key is added.
+
 ## 0.1.5
 
 - Skill text updates distilled from the source project, restoring rules lost in earlier distillation and fixing references that pointed at missing rules. Locally edited copies are three-way merged on upgrade.
