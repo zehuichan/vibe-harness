@@ -43,7 +43,7 @@ Edit only `<repo path>`. Never edit the kit checkout: the installer reads it as 
 ## Preconditions
 
 1. **`<repo path>` has `.agents/vibe-harness.lock.json`.** Without it, this is an install: follow [BOOTSTRAP.md](BOOTSTRAP.md#install).
-2. **The kit checkout is clean and released.** Run `git status --short` in `<kit path>`. The installer copies working-tree text but records the commit at `HEAD`. Uncommitted kit edits, such as a finished DISTILL.md run, are installed under a commit that does not contain them, so the next upgrade cannot rebuild the merge base and reports "base unavailable" for every file that is both edited locally and changed upstream. A clone made in this run is clean. If a checkout the user named has changes, stop and report them. Releasing is the user's decision: follow the Developing section of [README.md](README.md) only when the user asks.
+2. **The kit checkout is clean and released.** Run `git status --short` in `<kit path>`. The installer copies working-tree text but records the commit at `HEAD`. Uncommitted kit edits, such as a finished DISTILL.md run, are installed under a commit that does not contain them, so the next upgrade cannot rebuild the merge base and reports "base unavailable" for every file that is both edited locally and changed upstream. A clone made in this run is clean. If a checkout the user named has changes, stop and report them. Releasing is the user's decision: follow the Release section of [DISTILL.md](DISTILL.md#release) only when the user asks.
 3. **`<repo path>` starts with a reviewable `git status`.** Record any unrelated uncommitted changes and tell the user, so the upgrade diff stays separable from them.
 
 ## Choose the version
