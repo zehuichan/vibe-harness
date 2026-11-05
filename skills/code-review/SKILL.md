@@ -36,6 +36,7 @@ description: Use when reviewing a pull request or local change in this repositor
 
 ## Manual checks
 
+- **UI review coverage:** when the profile enables `surfaces.ui`, apply the `ui-ux-review` skill's UI change workflow to the cumulative visible diff and verify its minimum checks for the changed properties and consumers. Missing required inspection remains a gap; missing optional reports do not. Do not demand full-audit records for ordinary changes, and recheck only new interactions or invalidated evidence. The project's test requirements, GIF evidence, and design or product review stay required under their original triggers.
 - **Intent and interface contracts:** trace both sides of every changed interface. Confirm the implementation matches the description and any Agent Note, including errors, cancellation, ownership, and disposal.
 - **Error handling:** apply error-handling to changed failure paths, including their state guarantees and final user-visible reports. Reject catch-and-continue unless the state owner establishes that later work's preconditions hold, including after recovery.
 - **Lifecycle and concurrency:** for async setup, callbacks, processes, or teardown, check races before publication, cancellation during awaits, independent error reporting, callback containment, ownership before reentry, complete detach cleanup, and quiescent disposal.

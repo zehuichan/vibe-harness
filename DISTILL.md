@@ -132,7 +132,7 @@ List the candidates mechanically: `git -C <source> grep -ohE '\]\((\.\./)+[^)# ]
 | Source skill | Delegates to | Kit home |
 |---|---|---|
 | `dsh-merging-stacked-prs` | `docs/cookbook/responding-to-pr-review-on-a-stack.md` | `stacked-prs`, "Respond to review across the stack" |
-| `dsh-client-ui-ux`, `dsh-responsive-ui` | `docs/cookbook/reviewing-ui-design.md`, `docs/ui-design-review-cases.md` | `ui-ux-review` |
+| `dsh-client-ui-ux`, `dsh-responsive-ui` | `docs/cookbook/reviewing-ui-design.md`, `docs/ui-design-review-cases.md` | `ui-ux-review`, `references/review-workflow.md` and `references/review-cases.md` |
 | `dsh-pre-push-checks`, `dsh-code-review` | the root `AGENTS.md` sections they link | `pre-push-checks`, `code-review`, and `templates/AGENTS.md.tmpl` |
 | `dsh-code-review`, `dsh-find-simplifications`, `dsh-ci-test-reliability`, `dsh-speed-up-perf` | `docs/defensive-patterns/README.md`, `docs/defensive-patterns/general.md` | `templates/defensive-patterns/`; the source's surface-specific pattern files stay out unless the request names them |
 | `dsh-archive-agent-notes` | `.agents/notes/README.md` and the `AGENTS.md` files under it | `agent-notes` and `templates/agent-notes/` |
@@ -266,4 +266,4 @@ The source commit up to which each kit file is reconciled: every source change u
 
 | Kit path | Source commit | Date | Mode |
 |---|---|---|---|
-| all mapped skills and templates | `d37b3d98f5d` | 2026-10-30 | full audit, ported in 0.1.5 |
+| all mapped skills and templates | `fcc0ad4621` | 2026-11-05 | auto sync, ported in 0.1.6 |

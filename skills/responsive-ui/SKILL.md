@@ -7,6 +7,8 @@ description: Use when designing, implementing, or reviewing responsive layouts, 
 
 These are default rules; the project's design rules override them where they differ. This is guidance, not a checklist.
 
+For visual reviews, select the [impact scope](../ui-ux-review/references/review-workflow.md#select-scope-by-visual-impact), then apply these behavioral requirements and the [applicable-standards map](../ui-ux-review/references/review-cases.md#combine-the-applicable-standards-first). Compare affected wrapping and layout relationships in the context of the whole page or modal while preserving drafts, focus, and access to actions. Inspect all regions for an explicit full-interface review. Examples do not define coverage, and fitting the viewport alone is not sufficient.
+
 ## 1. Minimum viewport
 
 Use a viewport width of 390 CSS px as the primary acceptance minimum unless the project rules set another. At that width there must be no unintended overlap, clipping, page-wide horizontal scrolling, or inaccessible primary actions. Below it, layout requirements may relax.
