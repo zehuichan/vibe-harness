@@ -75,10 +75,13 @@ Review comments may target several layers. Keep the chain linked through the off
 
 1. Work on each pull request's branch in its own worktree; parallel fixes never share a checkout.
 2. Verify every comment against the code before acting: a reviewer who flags the right symptom can still misdiagnose the cause.
-3. Fix each accepted finding on the pull request that introduced it, then propagate it upward through every affected child, with either refresh history above. A fix that originates in a higher layer leaves the lower one shipping the defect and hides the fix from its reviewer.
+3. Fix each accepted finding on the pull request that introduced it, even when a child also carries the file, then propagate it upward through every affected child in order. A fix that originates in a higher layer leaves the lower one shipping the defect and hides the fix from its reviewer.
+   - **Merge-forward:** merge the fixed parent branch into its child, validate the child, and continue upward. Preserve each in-progress checkpoint.
+   - **Native cascading rebase:** use `gh stack rebase`, validate the rewritten layers, then publish with `gh stack push`; or use `gh stack sync`, which may publish first and therefore requires the immediate post-sync validation in [pre-push-checks](../pre-push-checks/SKILL.md).
 4. Keep each review fix a distinct commit. A later rebase may change its commit hash, but do not amend a reviewed fix away; amend only your own work that is neither pushed nor reviewed.
-5. Treat a delegated fix's report as intent, not proof of what landed. Rerun the checks yourself on the actual tree, and prove a regression test fails on the unfixed code (introduce the regression, watch it fail, revert).
-6. Reply in the comment's review thread, not as a top-level comment, naming the fix and the current commit that carries it.
+5. Treat a delegated fix's report as intent, not proof of what landed. Rerun the checks yourself on the actual tree, and prove a regression test fails on the unfixed code (introduce the regression, watch it fail, revert); a guard that passes both ways guards nothing. A subagent that reframes a problem as already handled is a signal to investigate it yourself.
+6. Reply in the comment's review thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level comment, naming the fix and the current commit that carries it.
+7. After any rewritten push, re-read unresolved threads, approvals, mergeability, and checks; a force-pushed commit hash or an outdated inline anchor is not current evidence that a finding remains resolved.
 
 Before landing, verify that every fixed pull request's current diff carries its correction at the layer that introduced the issue, each child's diff against its parent shows only that child's changes, and the relevant checks pass on every affected layer, not only the top.
 
