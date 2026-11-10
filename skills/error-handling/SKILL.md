@@ -5,7 +5,7 @@ description: Apply error-handling principles when designing or reviewing failure
 
 # Error handling
 
-Define failures, their owners, and what remains safe after failure. This is guidance, not a checklist.
+Define failures, their owners, and what remains safe after failure.
 
 ## Typed, structured failures
 

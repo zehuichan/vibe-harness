@@ -13,7 +13,7 @@ Every Agent Note encodes two axes in its path, `{lifecycle}/{class}/yyyy-mm-dd-t
   - `archived/`: frozen historical snapshots of implemented notes that no longer guide future work. See [archived/AGENTS.md](archived/AGENTS.md).
 - **Class** is the nested folder naming the kind of decision.
 
-The date in the filename is when the topic was first proposed. Cross-references between notes use relative Markdown links, never bare prose or numbers, so they are checkable and survive moves. Do not maintain a central index file: the folder tree is the inventory, and an index duplicates path metadata.
+The date in the filename is when the topic was first proposed, per git history. Cross-references between notes use relative Markdown links, never bare prose or numbers, so they are checkable and survive moves. Do not maintain a central index file: the folder tree is the inventory, and an index duplicates path metadata.
 
 ## Classification
 
@@ -32,11 +32,11 @@ The `architecture`/`process` line: architecture is the source the project ships;
 
 Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain. A proposal for substantial future work starts in `proposed/`; a decision already made starts in `implemented/`.
 
-Updating the note that already owns the decision satisfies the rule; do not create a duplicate. Mechanical or local edits, including local UI presentation changes, are exempt. A note is never edited into a different decision: supersede it with a new note and cross-link both, unless the old note is fully consolidated under the rule below.
+Updating the note that already owns the decision satisfies the rule; do not create a duplicate. Mechanical or local edits, including local UI presentation changes, are exempt. A note is never edited into a different decision: supersede it with a new note and cross-link both, unless the old note is fully consolidated under the rule below. Editing an implemented note to track where its existing decision now lives is required, not forbidden.
 
 An implemented note that is fully superseded may be consolidated into the current owning note and deleted. Before deletion, the owner preserves every unique rationale, alternative, consequence, required verification, and named coverage gap, and every inbound link is repaired. Partial supersession does not qualify: keep both notes cross-linked and keep every remaining fact current. Consolidation must not rewrite the old note into its opposite or leave git history as the only copy of its rationale.
 
-A feature-addition note may be consolidated into the later removal note only when the feature is absent from production code, configuration, schemas, durable or wire formats, migration, and compatibility behavior; no current documentation presents it as available; and no test exercises it as supported behavior. Removal rationale and tests that verify absence may remain. The removal owner preserves the original motivation, why it no longer justified the feature, alternatives to full removal, the capability given up, conditions for reintroduction, and verification of complete absence. Removing one transport, default, implementation, or presentation is partial supersession, as is any surviving durable data or compatibility handling.
+A feature-addition note may be consolidated into the later removal note only when the feature is absent from production code, configuration, schemas, durable or wire formats, migration, and compatibility behavior; no current documentation presents it as available; and no test exercises it as supported behavior. Removal rationale and tests that verify absence may remain. The removal owner preserves the original motivation, why it no longer justified the feature, alternatives to full removal, the capability given up, conditions for reintroduction, and verification of complete absence. Obsolete implementation inventories and tests that only verified the deleted behavior are not current verification evidence. Removing one transport, default, implementation, or presentation is partial supersession, as is any surviving durable data or compatibility handling.
 
 ## The file format
 
@@ -50,15 +50,15 @@ The first three lines of every note are exactly:
 Status: <status>
 ```
 
-The status is `proposed`, `implemented`, or `rejected — <why, in one line>`, and it must agree with the lifecycle folder. It carries no dates or parentheticals: the filename holds the first-proposed date and git holds the rest. Archived notes keep `Status: implemented` and add one `Archived: YYYY-MM-DD` line directly below it.
+The status is `proposed`, `implemented`, or `rejected — <why, in one line>`, and it must agree with the lifecycle folder. It carries no dates or parentheticals: the filename holds the first-proposed date and git holds the rest. A decision accepted in amended form states the amendment in the body, where the decision is stated. The rejection reason is the one status with content, because a rejected note's verdict is the fact readers come for. Archived notes keep `Status: implemented` and add one `Archived: YYYY-MM-DD` line directly below it.
 
 ### Body
 
 Every note opens its body with `## Problem`, written to stand without the solution. Recurring sections use these names and nothing else; bespoke technical sections (module topology, wire formats, schemas) may sit between them.
 
 - `proposed/`: `## Problem`, `## Proposal`, `## Alternatives considered`, `## Acceptance criteria`, `## Risks`. The proposal may use the future tense; acceptance criteria state the observable state that means done; risks cover what could go wrong and what the change knowingly gives up.
-- `implemented/`: `## Problem`, `## Decision`, `## Alternatives considered`, `## Consequences`. The decision describes shipped reality in the present tense; consequences record what the trade-off cost and bought. `## Proposal`, `## Plan`, `## Migration plan`, and `## Acceptance criteria` do not appear in an implemented note. A present-tense `## Testing` or `## Verification` section may record what pins the behavior.
-- `rejected/`: the proposal frozen as it was, with the verdict on the `Status:` line. Only the header, the `## Problem` opener, a `## Proposal` section, and the alternatives requirement below apply.
+- `implemented/`: `## Problem`, `## Decision`, `## Alternatives considered`, `## Consequences`. The decision describes shipped reality in the present tense; consequences record what the trade-off cost and bought. `## Proposal`, `## Plan`, `## Migration plan`, and `## Acceptance criteria` do not appear in an implemented note. A present-tense `## Testing` or `## Verification` section may record what pins the behavior, and a `## Deferred` or `## Related` section is fine where it states present-tense fact.
+- `rejected/`: the proposal frozen as it was, keeping whatever proposal-time sections it had (including `## Acceptance criteria` or `## Plan`), with the verdict on the `Status:` line. Only the header, the `## Problem` opener, a `## Proposal` section, and the alternatives requirement below apply.
 
 Archived notes keep the format they had when archived.
 

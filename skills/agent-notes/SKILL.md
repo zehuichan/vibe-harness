@@ -5,7 +5,7 @@ description: Use when deciding whether to write an Agent Note (a durable design 
 
 # Agent Notes
 
-Agent Notes keep the decision corpus small and authoritative: each note records rationale that code and documentation cannot carry, and nothing else. The rules for layout, classes, and the in-file format live in `.agents/notes/README.md`; this skill owns the workflow. Judge every note semantically; word count and age are discovery aids, never criteria. This is guidance, not a checklist.
+Agent Notes keep the decision corpus small and authoritative: each note records rationale that code and documentation cannot carry, and nothing else. The rules for layout, classes, and the in-file format live in `.agents/notes/README.md`; this skill owns the workflow. Judge every note semantically; word count and age are discovery aids, never criteria.
 
 ## Decide whether a note is needed
 
@@ -39,14 +39,14 @@ When auditing or pruning, establish whether each rationale still owns or constra
 
 - **Implemented, delete:** notes that only describe small UI adjustments or purely mechanical changes. Repair or remove inbound links. Local bug fixes, performance changes, new capabilities, and substantive behavior or ownership decisions do not qualify merely because their implementation was small. Apply this test before keep or archive.
 - **Implemented, keep active:** rationale, alternatives, negative guarantees, durable or wire semantics, ownership boundaries, security rules, or reintroduction conditions likely to guide a future change. Classify the decision, not the mechanics of its implementation: a mechanical rename or type extraction can still record a lasting naming, compatibility, or ownership rule.
-- **Implemented, archive:** a substantive historical decision that is complete and unlikely to guide future work, but whose rationale still warrants preservation.
-- **Proposed, never archive:** keep a live proposal active; if it is no longer worth pursuing, reject it with an honest reason.
+- **Implemented, archive:** a substantive historical decision that is complete and unlikely to guide future work, but whose rationale still warrants preservation. Do not archive a note that meets the direct-deletion criterion.
+- **Proposed, never archive:** keep a live proposal active; if it is no longer worth pursuing, reject it with an honest reason and satisfy the rejected lifecycle's format.
 - **Rejected, keep only as a guardrail:** retain a rejection only while the losing proposal remains a tempting, meaningful mistake and the note explains why it loses.
 - **Rejected, delete:** delete the note, with any translated counterpart, when the rejected idea is obsolete, superseded, no longer plausible, or unlikely to prevent re-litigation. Repair or delete inbound links.
 
-Do not archive toward a quota. Inspect every note in scope, classify analogous groups under one principle, and record genuinely borderline decisions for the report.
+Do not archive toward a quota. Inspect every note in scope, classify analogous groups under one principle, use best judgment for close cases, and record genuinely borderline decisions for the report.
 
-Calibration:
+Calibration (length is not the test; each example holds regardless of word count):
 
 - Delete a note about a collapsed sidebar control's styling however long it is, and a note that records a completed function relocation with unchanged behavior.
 - Keep active a note establishing that sessions are event-sourced, or naming the single owner of a storage directory, however short it is; a borderline process note while it still guides tuning; and a note that states the condition for reintroducing a removed capability until that condition is met.
@@ -62,4 +62,4 @@ After archival, never edit, move, translate, reformat, or delete the note. Archi
 
 ## Validate and report
 
-Run the profile's `commands.docs-check` and `git diff --check`, and confirm that every changed relative link in active prose resolves; select any further evidence through [pre-push-checks](../pre-push-checks/SKILL.md). Link checking should skip outbound links from `.agents/notes/archived/`. If `commands.docs-check` reports a broken link inside an archived note, report it instead of editing the note, and never claim archived outbound links are valid. Report notes created or updated, notes kept active, deleted, archived, or rejected, and every borderline case with the chosen outcome.
+Run the profile's `commands.docs-check`, `commands.lint`, and `git diff --check`, and confirm that every changed relative link in active prose resolves; select any further evidence through [pre-push-checks](../pre-push-checks/SKILL.md). Link checking should skip outbound links from `.agents/notes/archived/`. If `commands.docs-check` reports a broken link inside an archived note, report it instead of editing the note, and never claim archived outbound links are valid. Report notes created or updated, notes kept active, deleted, archived, or rejected, and every genuinely borderline case with its word count and chosen outcome.

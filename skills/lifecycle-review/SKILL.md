@@ -24,7 +24,7 @@ A focused semantic review of who owns each piece of state and each side effect, 
 
 Flag one process-wide instance or mutable state owner whose identity or lifetime comes from module loading, a static field, a global symbol, a hidden cache, or a `getInstance()` accessor. Weak keys, size bounds, generation checks, and memoization do not give a module-level cache an owner.
 
-Exclude immutable constants, frozen tables, stateless functions, and objects allocated inside an explicitly scoped owner. Recommend a service or instance owned by the lifecycle framework, with declared consumer dependencies; use a scoped context or a service-owned keyed record for narrower lifetimes.
+Exclude immutable constants, frozen tables, stateless functions, and objects allocated inside an explicitly scoped owner. Recommend a service or instance owned by the lifecycle framework, with declared or otherwise resolved consumer dependencies; use a scoped context or a service-owned keyed record for narrower lifetimes.
 
 ## P0: unreversed side effect
 
@@ -42,7 +42,7 @@ Require explicit ownership and awaited sequencing:
 2. Settle admitted consumers while their dependencies remain usable.
 3. Drain and release the resources.
 
-Express that order with one composed owner (a parent that awaits its consumer children before releasing resources, or a single disposal function that yields the exact disposers it captured), and verify the actual captured disposer identities: wrapping an independently registered disposer does not transfer ownership of the original. In a composed provider, acquire resources and required completion listeners first, publish the service after them, and register any admission gate last, so reverse disposal stops admission, then withdraws the service while its consumers are still registered, then releases the resources.
+Express that order with one composed owner (a parent that awaits its consumer children before releasing resources, or a single disposal function that yields the exact disposers it captured), and verify the actual captured disposer identities: wrapping an independently registered disposer does not transfer ownership of the original, which can still close early. Generator-style or top-level registration sequences are not a general promise of serial sibling disposal; serial order holds only for disposers one composed owner captured. In a composed provider, acquire resources and required completion listeners first, publish the service after them, and register any admission gate last, so reverse disposal stops admission, then withdraws the service while its consumers are still registered, then releases the resources. The composed owner orders only the disposers it captured; it does not repair completion listeners that a consumer registered under its own scope, or remove the need to handle cleanup failures.
 
 That ordering covers provider withdrawal, not every shutdown. A framework may remove a consumer from its registry as soon as the consumer starts disposing, before its cleanup finishes, so withdrawal can miss a consumer that is already disposing. For root or enclosing-owner shutdown and for independently started consumer cleanup, an explicit owner retains and awaits the actual consumer disposal tasks before releasing their resources. Check failure paths too: one cleanup error must not skip required abort, settlement, or release.
 
@@ -54,4 +54,4 @@ For a regression test: pause the consumer immediately before its last dependency
 
 Report only substantiated P0 violations of the three rules. Give a tight source location, the lifecycle root, the consumer and resource owner, the failing interleaving, the observable impact, the correction, and a deterministic acceptance test. Consolidate multiple locations implementing one failure. State the inspected scope, rejected candidates, and reproduction limits; do not claim exhaustive safety from a pattern search. If no violations are established, say that no P0 violations were found in the inspected scope and name any material evidence gaps. When a caller supplies a structured output schema, use it with these rule names and severities, and report conflicting rule instructions before running an automated audit.
 
-If asked to record unresolved findings, use proposed Agent Notes (see [agent-notes](../agent-notes/SKILL.md)); otherwise return the findings directly.
+If asked to record unresolved findings, use proposed Agent Notes with rationale, alternatives, acceptance criteria, risks, and an active-note supersession check (see [agent-notes](../agent-notes/SKILL.md)); otherwise return the findings directly.
