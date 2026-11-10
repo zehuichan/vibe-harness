@@ -2,6 +2,26 @@
 
 Each release lists changes that affect installed repositories. Upgrade agents read the entries newer than the `kit.ref` in `.agents/vibe-harness.lock.json`; entries name seed-template changes explicitly because upgrades never rewrite seeds.
 
+## 0.1.7
+
+- Skill text updates from a full audit against the source project, restoring rules, conditions, and examples lost in earlier distillation. Locally edited copies are three-way merged on upgrade.
+  - `pre-push-checks`, `error-handling`, `agent-notes`, `test-reliability`, `docs-standard`, `responsive-ui` (optional): a kit-added sentence that made mandatory rules read as optional guidance is removed.
+  - `pre-push-checks`: commands for helper and CI execution paths, `commands.lint` for docs that require it, and the `CONFLICTING` and `DIRTY` statuses, `--allow-empty`, and dropped events in conflict handling.
+  - `code-review`: the real entry path under the production runtime, rerun and byte-identity test-strength checks, a guard must fail on the regression, and a mocks-and-coverage rule.
+  - `prose-standard` and `trim-cot-leakage`: vendored-tree exclusion commands, generator summaries, unowned bilingual pairs, the reviewer-addressed comment class, hidden-path batteries, and restored rationale and overcorrection examples.
+  - `docs-standard` and `upgrade-guide`: a 100-word Summary, a mandatory table of contents, part separators on long pages, a Validation section, the default-branch fact check, exact guide frontmatter, and the bilingual counterpart.
+  - `test-reliability` and `perf-evidence`: a file passing only alone has a test defect, platform and timeout rules, real-service retry budgets, benchmark lane rules, raw and aggregate reporting, and unscaled memory and count budgets.
+  - `find-simplifications` and `lifecycle-review`: archived outbound links are never inspected, proposal and implemented skeletons, docs-only checks, and generator yields are not serial sibling disposal.
+  - `stacked-prs` (optional): merge-forward and native cascading rebase, the review-reply API, and re-reading threads, approvals, and checks after a rewritten push.
+  - `record-browser-gif`, `ui-ux-review`, `responsive-ui` (optional): when `surfaces.ui` is enabled, a pull request that changes user-visible GUI behavior includes a GIF unless project rules waive it, and local changes need no separate screenshot report; DOM and completion markers, live-head checks before publishing, the error-copy and Chinese full-stop rules, and the truncation and icon-only exceptions.
+- Managed templates, rewritten on upgrade:
+  - `AGENTS.md` block: nested sandboxes, preserving a merge-forward checkpoint, and no runtime validation solely for statically guaranteed values.
+  - `docs/defensive-patterns/general.md`: rewritten under the same headings, so anchors are unchanged, restoring judged conditions, no-exception rules, wrong-form examples, file modes, and the symlink-removal boundary.
+  - `docs/AGENTS.md`: the budget procedure, the postmortem tier, current-state rules for persistence records, the code-comment column limit, and the leading-slash link ban.
+  - `.agents/notes/README.md`: editing an implemented note to track the decision's location, and amendment and section rules.
+- Seed templates: unchanged; existing installations need no edit.
+- No profile key is added.
+
 ## 0.1.6
 
 - Skill text updates distilled from the source project's UI review restructure. Locally edited copies are three-way merged on upgrade.
