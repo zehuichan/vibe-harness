@@ -89,6 +89,7 @@ git -C <source> diff --name-status <recorded>..HEAD -- \
   AGENTS.md docs/AGENTS.md \
   .agents/notes/README.md .agents/notes/AGENTS.md .agents/notes/implemented/AGENTS.md .agents/notes/archived/AGENTS.md \
   docs/defensive-patterns/README.md docs/defensive-patterns/general.md \
+  docs/testing.md benchmarks/AGENTS.md \
   docs/cookbook/responding-to-pr-review-on-a-stack.md \
   docs/cookbook/reviewing-ui-design.md docs/ui-design-review-cases.md
 ```
@@ -137,6 +138,8 @@ List the candidates mechanically: `git -C <source> grep -ohE '\]\((\.\./)+[^)# ]
 | `dsh-code-review`, `dsh-find-simplifications`, `dsh-ci-test-reliability`, `dsh-speed-up-perf` | `docs/defensive-patterns/README.md`, `docs/defensive-patterns/general.md` | `templates/defensive-patterns/`; the source's surface-specific pattern files stay out unless the request names them |
 | `dsh-archive-agent-notes` | `.agents/notes/README.md` and the `AGENTS.md` files under it | `agent-notes` and `templates/agent-notes/` |
 | `dsh-doc` | `docs/AGENTS.md` | `docs-standard` and `templates/docs-AGENTS.md` |
+| `dsh-code-review`, `dsh-ci-test-reliability`, `dsh-find-simplifications`, `dsh-speed-up-perf` | `docs/testing.md` | `code-review` ("Mocks and coverage", test strength) and `test-reliability`; its project-specific suites, launchers, and key policy stay out |
+| `dsh-speed-up-perf` | `benchmarks/AGENTS.md` | `perf-evidence`, lane rules |
 
 Add a row when a synced skill gains a new delegation. Diff these documents in an incremental sync together with the skill.
 
@@ -266,4 +269,4 @@ The source commit up to which each kit file is reconciled: every source change u
 
 | Kit path | Source commit | Date | Mode |
 |---|---|---|---|
-| all mapped skills and templates | `fcc0ad4621` | 2026-11-05 | auto sync, ported in 0.1.6 |
+| all mapped skills and templates | `fcc0ad4621` | 2026-11-10 | full audit |

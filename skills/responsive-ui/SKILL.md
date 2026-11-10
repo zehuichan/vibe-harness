@@ -5,7 +5,7 @@ description: Use when designing, implementing, or reviewing responsive layouts, 
 
 # Responsive UI
 
-These are default rules; the project's design rules override them where they differ. This is guidance, not a checklist.
+These are default rules; the project's design rules override them where they differ.
 
 For visual reviews, select the [impact scope](../ui-ux-review/references/review-workflow.md#select-scope-by-visual-impact), then apply these behavioral requirements and the [applicable-standards map](../ui-ux-review/references/review-cases.md#combine-the-applicable-standards-first). Compare affected wrapping and layout relationships in the context of the whole page or modal while preserving drafts, focus, and access to actions. Inspect all regions for an explicit full-interface review. Examples do not define coverage, and fitting the viewport alone is not sufficient.
 
@@ -22,10 +22,10 @@ Use a viewport width of 390 CSS px as the primary acceptance minimum unless the 
 
 ## 3. Text truncation
 
-1. Truncated content must be fully available elsewhere: on a detail page, in a menu, or in a tooltip.
+1. Truncated content must be fully available on a secondary page or by opening a menu; a hover tooltip alone does not qualify, because touch devices cannot hover. Example: compact session statistics beside an input box whose full values open in a menu.
 2. Truncation must never hide errors or other key information.
 3. Prefer single-line truncation for tabs, visible selectors, buttons, tags, and similar components.
-4. Important information not available anywhere else is displayed in full.
+4. Important information that is not available on another page is displayed in full without truncation.
 
 ## 4. Titles
 
@@ -36,10 +36,10 @@ Use a viewport width of 390 CSS px as the primary acceptance minimum unless the 
 
 Reducing a control to an icon requires both:
 
-- the icon clearly conveys its meaning, or the operation is familiar and frequently used;
-- a tooltip appears on hover.
+- the icon clearly conveys its meaning, or the operation is familiar to users;
+- a tooltip appears on hover; add one if needed.
 
-Do not reduce a control to an icon when it navigates to a separate page whose purpose the icon cannot convey. A frequently used selector whose menu shows the current choice can be reduced safely.
+Do not reduce a control to an icon when it navigates to a separate page, such as an account-details link. A selector that users see frequently and can open to switch its choice, such as a model selector inside an input box, can be reduced to an icon.
 
 ## 6. Hover on touch devices
 
@@ -64,4 +64,4 @@ Do not raise the on-screen keyboard automatically unless that is explicitly inte
 
 ## Verification
 
-Check each changed surface at the minimum viewport and at a common desktop width, with touch emulation for hover and tooltip rules, and include the evidence (screenshots or a recording) in the change.
+Check each changed surface at the minimum viewport and at a common desktop width, with touch emulation for hover and tooltip rules. Report the evidence and any material gaps as `ui-ux-review` requires; a local change needs no separate screenshot report by default, and a pull request's visual evidence follows that skill's evidence rules.

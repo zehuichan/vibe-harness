@@ -26,7 +26,7 @@ Choose the inspection scope from the table below. For broader changes, a few tas
 
 A shared consumer can reuse another's evidence only when the relevant implementation, size, container constraints, content behavior, and states are equivalent; record the grouping and its basis, and inspect uncertain cases directly. Reading the source of every consumer is not a claim to have opened every page. Expand the scope when a defect recurs beyond the initial region or a fix changes adjacent relationships. Record unrelated discoveries separately instead of silently starting a product-wide redesign.
 
-Apply the [minimum checks](../SKILL.md#minimum-checks-for-affected-ui) to each changed property: color requires both themes; layout, spacing, typography, and sizing require constrained and long-content checks; interaction requires the affected path and states. These are inspection requirements, including for local edits, not a demand for a screenshot of every condition. Do not exhaust unrelated combinations or replace coverage reasoning with a fixed screenshot count. Reuse unchanged rules and valid evidence within the task, and recapture after a coherent batch of edits rather than after every CSS adjustment. Read only the relevant principle sections and examples; an uncertain design decision is a reason to retrieve more detail.
+Apply the [minimum checks](../SKILL.md#minimum-checks-for-affected-ui) to each changed property: color requires both themes; layout, spacing, typography, and sizing require constrained and long-content checks; interaction requires the affected path and states. These are inspection requirements, including for local edits, not a demand for a screenshot of every condition. Apply the owning responsive and behavior requirements; do not exhaust unrelated combinations or replace coverage reasoning with a fixed screenshot count. Reuse unchanged rules and valid evidence within the task, and recapture after a coherent batch of edits rather than after every CSS adjustment. Read only the relevant principle sections and examples; an uncertain design decision is a reason to retrieve more detail.
 
 ## 2. Inspect the task and its implementation
 
@@ -61,17 +61,17 @@ A useful finding states a violated relationship: "The title-to-action gap is sma
 
 Before declaring a page or modal reviewed, reconcile its actual regions and relevant states with the inspected evidence, including content reached by scrolling, expansion, or tab changes. A local fixture or example cannot substitute for an uninspected part of that whole. For a limited review, list the remaining scope explicitly.
 
-Fixtures built from production components can reproduce controlled states or compare variants; they supplement inspection of the actual application. Capture and report tools may live outside the repository; they are not product dependencies or CI acceptance.
+Fixtures built from production components can reproduce controlled states or compare variants; they supplement inspection of the actual application. Capture and report tools may live outside the repository and consume the source checkout; they are not product dependencies or CI acceptance. Read their local instructions for supported scenes and limits.
 
 ### Keep a coverage record
 
-Use this record for an explicitly requested comprehensive review or when several regions need tracking. Ordinary local changes need no coverage table.
+Use this record for an explicitly requested comprehensive review or when several regions need tracking. Ordinary local changes need no coverage table or separate note reproducing every field. Inspect the affected relationships, and preserve justified equivalence when grouping shared consumers.
 
 | Page or dialog and entry | Semantic groups and cross-group relationships | Inspected conditions | Finding and owner | Evidence after correction | Uninspected |
 |---|---|---|---|---|---|
 | The actual entry and region | Both endpoints and complete boxes or text axes | Content, width, theme, state | The rule and the responsible component | Comparison and relevant behavior results | Limits, stated rather than an ambiguous "covered" |
 
-For complex findings, explain the compared objects, the intended relationship, the supporting evidence, and risky neighboring effects. Include a plausible wrong fix or a retest condition when it clarifies the decision. Keep unsupported candidates pending, and investigate confirmed repeated problems within the chosen scope without starting unrelated cleanup.
+For complex findings, explain the compared objects, the intended relationship, the supporting evidence, and risky neighboring effects. Include a plausible wrong fix or a retest condition when it clarifies the decision; ordinary findings use the short form above. Keep unsupported candidates pending, and investigate confirmed repeated problems within the chosen scope without starting unrelated cleanup.
 
 ## 3. Preserve the starting point
 
@@ -107,15 +107,15 @@ An ordinary handoff states what changed, what was checked, and any material gap;
 
 When a before-and-after comparison is part of the deliverable, label both sides and distinguish application captures from isolated component scenes. If the user asks for all changes, reconcile that scope with the final diff, including nested controls, and state missing evidence. Do not require a paired report for every ordinary correction.
 
-For comprehensive reviews, distinguish inspected-without-findings, defects, and uninspected regions. For ordinary changes, report the result and material gaps without a per-region status ledger. Known defects are not canceled by unrelated passing checks.
+For comprehensive reviews, distinguish inspected-without-findings, defects, and uninspected regions. For ordinary changes, report the result and material gaps without a per-region status ledger. Add rule ownership, wrong-fix examples, exceptions, or retest conditions only when they help explain a finding. Known defects are not canceled by unrelated passing checks.
 
 Report the checks actually run and their outcomes, and distinguish automated metadata checks, behavior tests, and human visual inspection. Include material limitations such as an unavailable application state or an untested platform. Do not describe the work as fully verified while required scenes or checks remain outstanding.
 
-At handoff, review, and push, use the [UI change workflow](../SKILL.md#ui-change-workflow) to check new cumulative effects or invalidated evidence, not to repeat completed inspection. Tests and agent inspection do not replace a required design or product review.
+At handoff, review, and push, use the [UI change workflow](../SKILL.md#ui-change-workflow) to check new cumulative effects or invalidated evidence, not to repeat completed inspection; an unchanged result needs no extra report. Tests and agent inspection do not replace a required design or product review.
 
 ### Comparison delivery and cumulative changes
 
-For a formal comparison report, put before on the left and after on the right. Add non-obscuring annotations only when helpful, only on the after image, and keep the originals. Choose a presentation readable on a narrow screen. Ordinary handoffs may use simple labeled images or concise text.
+For a formal comparison report, put before on the left and after on the right. Add non-obscuring annotations only when helpful, only on the after image, and keep the originals; a removable overlay is useful for interactive reports. Choose a presentation readable on a narrow screen rather than requiring a special report interface. Ordinary handoffs may use simple labeled images or concise text; the GIF evidence rules remain unchanged.
 
 Deduplicate cumulative summaries by location: pair the earliest reliable before image with the final implementation under comparable conditions. Keep intermediate rounds only as historical evidence, not as separate final results; reverted proposals are not current results. List another session's retained changes separately without claiming them. Disclose missing baselines or uncertain ownership, and record actual checks without counting repeated runs as extra coverage.
 

@@ -83,16 +83,16 @@ Compare related controls, including small selection controls, at actual size in 
 
 ### Feedback surfaces
 
-Choose the surface by the lifetime of the message relative to the surface that produced it.
+Follow `error-handling` for localized, actionable, visible reports. Choose the surface by the lifetime of the message relative to the surface that produced it.
 
 - **Transient operation outcomes use the app-wide toast,** and the toast's state lives in a host that outlives the reporting surface: a deletion can close the panel that requested it, and a toast rendered by that panel unmounts with it. Report success and failure; do not report still-pending states.
 - **A failed operation keeps the data visible.** A failed deletion keeps its row while the toast announces the failure; never blank content to show an error for a transient operation.
 - **In-place notices are for states tied to the surface itself:** a query failure with its Retry action, or field validation on the form that owns the field. A populated panel keeps a compact notice beside its content; only an empty panel centers a full error state.
-- **Error copy is plain and short:** no internal jargon unless an error code must be exposed for debugging; one clear sentence is best, and two is the limit. The notice must not shift neighboring elements; reserve its space or overlay it.
+- **Error copy is plain and short:** no internal jargon unless an error code must be exposed for debugging, and preferably one sentence. In Chinese copy, a notice of at most two sentences omits the trailing full stop (。). The notice must not shift neighboring elements; reserve its space or overlay it.
 
 ### Loading states
 
-- Lists use their skeleton; other page-level loads center one spinner. Never place a spinner in a corner of the page.
+- Lists use their skeleton; other page-level loads center one bare spinner. Never place a spinner in a corner of the page.
 - One loading treatment per page or component; concurrent regions must not each flash their own style.
 - No loading text unless the context needs it.
 
@@ -116,8 +116,8 @@ Inspect the composition first, then the affected relationships inside and across
 
 ## Changing the project's UI rules
 
-When the project adds or changes a UI design rule, keep it in one owning document and link to it from `AGENTS.md` and review workflows instead of restating it. State the rule's applicability, the decision, its exceptions, and how to verify it observably, and add or update a distinguishing example. Remove superseded statements elsewhere. Say whether the rule applies to future edits only or comes with a migration; a new rule does not imply that existing UI conforms. Automate only mechanically decidable checks.
+When the project adds or changes a UI design rule, keep it in one owning document and link to it from `AGENTS.md` and review workflows instead of restating it. State the rule's applicability, the decision, its exceptions, and how to verify it observably, and add or update a distinguishing example. Remove superseded statements elsewhere. Say whether the rule applies to future edits only or comes with a migration; a new rule does not imply that existing UI conforms. Automate only mechanically decidable checks. Local review tools consume the repository's rules and record the source and rule revisions they checked, rather than maintaining another copy of the standards.
 
 ## Evidence and design review
 
-A change to user-perceivable UI or interaction needs visual evidence (screenshots or a recording; see [record-browser-gif](../record-browser-gif/SKILL.md)). A change with extensive UI changes, or any clearly user-perceivable change to UI or interaction, also needs a designer or product review when the profile's project-specific rules name design or product reviewers. When no approver holds that role, suggest requesting one.
+Inspect the rendered result as the [UI change workflow](#ui-change-workflow) requires; a local change needs no separate screenshot report by default. Attach comparable images when a comparison was requested, the change is broad, or regression risk needs them. A pull request that changes user-visible GUI behavior includes a demonstration GIF, unless the project rules waive it; [record-browser-gif](../record-browser-gif/SKILL.md) owns that evidence. A change with extensive UI changes, or any clearly user-perceivable change to UI or interaction, also needs a designer or product review when the profile's project-specific rules name design or product reviewers. When no approver holds that role, suggest requesting one.
