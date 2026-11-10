@@ -13,13 +13,13 @@ Comments describe non-obvious contracts or rationale that code cannot express; t
 
 ## Inputs and exclusions
 
-Require an explicit `scope`. If it is missing, report the required input and stop; do not infer a repository-wide scope.
+Require an explicit `scope`. If it is missing, report the required input and stop; do not infer a repository-wide scope or begin an interview.
 
 Accept `mode: automatic | interactive`, default `automatic`. Enter interactive mode only when the user explicitly asks for questions or calibration. `mode` controls questions, not write authority: review and audit tasks report findings without editing; explicitly requested write, fix, or trim tasks apply clear changes.
 
-Exclude vendored and third-party code from discovery, review, and edits, even when the scope is the whole repository; put exclusion globs after inclusion globs so a later include cannot re-admit them. Exclude archived Agent Notes (`.agents/notes/archived/`): inspect an exact archived target only to understand a historical citation, never to modernize it.
+Exclude vendored and third-party code from discovery, review, and edits, even when the scope is the whole repository, and do not follow a symlink into it. Put exclusions after inclusion globs so a later include cannot re-admit them: for example, end ripgrep commands with `--glob '!<tree>/**'`, and give git commands an explicit `:(exclude)<tree>/**` pathspec. If the requested scope contains only excluded trees, report that no eligible files remain and stop. Exclude archived Agent Notes (`.agents/notes/archived/`): inspect an exact archived target only to understand a historical citation, never to modernize it.
 
-Treat generated catalogs, snapshots, and fixtures as derivatives. Trace every consumer before editing: source API docs may also feed a generated, model-visible catalog. Edit the owning source or scenario first, then regenerate every derivative. When the project keeps bilingual documentation, update the counterpart minimally in the same change.
+Treat generated catalogs, snapshots, and fixtures as derivatives. Trace every consumer before editing: source API docs may also feed a generated, model-visible catalog. Edit the owning source or scenario first, then regenerate every derivative. When a generator extracts a summary from owner prose, make the extracted sentence complete for that surface. When the project keeps bilingual documentation, a pair has no permanent owner: either language may be the authored side of an update. Follow the routine translation path in `docs/AGENTS.md`, and update the counterpart minimally in the same change.
 
 ## Preserve the complete proposition
 
@@ -46,24 +46,24 @@ This is not a one-way shortening pass. Add or restore prose when code, types, an
 - **Module comments:** the module's role, dependencies, responsibilities, and non-obvious architecture choices, linked to their owning explanation.
 - **Tests:** only non-obvious test design: why a fixture, assertion, platform accommodation, real entry path, or indirect observation is necessary. Delete walkthroughs and inventories.
 - **Cookbooks:** prerequisites, required actions, the real entry path, observable verification, and concise warnings.
-- **READMEs:** the consumer contract: configuration, semantics, failures, limitations, extension points, and model-visible effects. Keep durable gaps and maintainer traps, not cleanup inventories.
+- **READMEs:** the consumer contract: configuration, semantics, failures, limitations, extension points, and model-visible effects. Quote stable model-visible text the package owns; link generated catalogs and owners in other packages. Keep durable gaps and maintainer traps, not cleanup inventories.
 - **Agent Notes:** unique rationale, mechanisms, alternatives, consequences, shipped verification evidence, and named coverage gaps. Implemented notes state shipped reality in the present tense; remove planning checklists, not evidence of what pins the decision.
 - **Postmortems:** the incident sequence, evidence, causal chain, impact, and prevention. Remove repeated persuasion or implementation detail that does not establish causality.
 - **Skills and agent instructions:** behavioral guardrails and explicit scope limitations such as "guidance, not a checklist". Keep the workflow concise and link its source of truth.
-- **Examples and configuration comments:** access limits, non-obvious wiring or load order, security stance, exceptions, and likely misuse. Do not narrate entries the configuration already shows.
-- **Prompts and visible strings:** wording is behavior. When the profile enables `surfaces.localized-ui`, user-visible copy goes through the locale mechanism; inspect text, accessibility names, tooltips, placeholders, and format templates together. English UI copy uses sentence case unless the project's design rules say otherwise: capitalize only the first word, proper nouns, and product names (`Git worktrees`, not `Git Worktrees`); copy in other languages keeps that language's conventions. Update the owning test or snapshot for model-visible text. If no owning test exists in the authorized scope, leave the wording unchanged and report the deferral.
+- **Examples and configuration comments:** access limits, non-obvious wiring or load order, security stance, replay behavior, exceptions, and likely misuse. Do not narrate entries the configuration already shows.
+- **Prompts and visible strings:** wording is behavior. When the profile enables `surfaces.localized-ui`, user-visible copy goes through the locale mechanism; inspect text, accessibility names, tooltips, placeholders, and format templates together. English UI copy uses sentence case unless the project's design rules say otherwise: capitalize only the first word, proper nouns, and product names (`Git worktrees`, not `Git Worktrees`); copy in other languages keeps that language's conventions. Update the owning test or snapshot for model-visible text, and the project's required GUI evidence for visible copy. If no owning test exists in the authorized scope, either widen the scope to include it or leave the wording unchanged and report the deferral; do not silently fold the change into a prose-only edit.
 - **Diagnostics:** the failing subject or path, the violated rule, and the correction when it is not obvious. Remove internal execution narration.
 
 Preserve searchable mechanism names and meaningful modal, temporal, or negative emphasis. Normalize decorative emphasis only.
 
 ## Workflow
 
-1. Confirm the scope, mode, current branch or pull request base, and applicable `AGENTS.md` files.
+1. Confirm the scope, mode, current branch or pull request base, and applicable `AGENTS.md` files. Do not inspect unrelated branches.
 2. Read the documentation standard (`docs/AGENTS.md`) and the owning code or document before judging a passage. For calibration or unfamiliar cases, read [the distilled examples](references/examples.md).
 3. Inspect the requested scope, not only the largest files. Use searches and word counts to find candidates, then judge passages semantically.
 4. Classify each candidate as keep, add, trim, restore, restructure, or defer. Apply clear changes only when the task authorizes edits; do not manufacture edits to meet a deletion target.
 5. Update the owner before derivative artifacts. Re-check analogous passages after learning a new rule.
-6. Run the profile's `commands.docs-check`, `git diff --check`, and behavior tests for visible strings. Verify the final diff touches no excluded path.
+6. Run the narrow relevant checks, the profile's `commands.docs-check`, `git diff --check`, and behavior tests for visible strings. Verify the final diff touches no excluded path, and report any accidental match in an excluded tree rather than claiming a clean exclusion history.
 7. Report the inspected scope, clear changes, deliberate keeps, deferred cases, and checks actually run.
 
 ## Borderline decisions

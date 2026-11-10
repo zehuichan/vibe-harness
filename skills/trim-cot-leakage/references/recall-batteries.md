@@ -5,11 +5,11 @@ Probes for [the taxonomy](../SKILL.md#taxonomy). Every hit needs semantic judgme
 ## Invocation rules
 
 - Add `--hidden --glob '!.git/**'` so `.agents/` is searched; ripgrep skips dot-directories by default, and Agent Notes are a frequent miss.
-- Put exclusions last so a later include cannot re-admit them: `--glob '!vendor/**' --glob '!node_modules/**' --glob '!.agents/notes/archived/**' --glob '!.agents/skills/trim-cot-leakage/**'` (this skill quotes leaked wording as calibration), plus recorded fixture and snapshot directories.
+- Put exclusions last so a later include cannot re-admit them: `--glob '!vendor/**' --glob '!node_modules/**' --glob '!.agents/notes/archived/**' --glob '!.agents/skills/trim-cot-leakage/**'` (this skill quotes leaked wording as calibration), plus recorded fixture and snapshot directories. An Agent Note that owns a citation or prose decision can also match through its quoted evidence; judge that hit as evidence, not usage.
 - Natural-language probes use `-i` so sentence-initial capitals match ("This PR adds…"); the code-pattern probe stays case-sensitive, because `-i` turns `\bT\d\b` into noise.
 - Bound complete phrases. `\bthis PR\b` must match "this PR adds" without matching "this project" or "this provider".
 - A zero-hit pattern proves nothing until it matches a known positive, and a noisy pattern proves nothing until it rejects a near-miss negative. Calibrate both before trusting a corpus result.
-- Target authoring-language probes at the opposite-language surface: search non-English residue in English Markdown and code comments, and change narration inside translated files.
+- Target authoring-language probes at the opposite-language surface: search non-English residue in English Markdown and code comments, and change narration inside translated files. A generic ASCII search for English residue in non-Latin prose is too noisy around code and identifiers; compare the prose additions against their counterpart instead.
 
 ## English battery
 
@@ -40,11 +40,14 @@ rg -n --hidden '(//|/\*|^\s*\*|#)[^\r\n]*(设计稿|评审|上一?轮|旧版|老
 
 ## Known false-positive families
 
+Expect these again after judging them once:
+
 - **Instrumental "used to":** "the key used to sign requests" is instrumental, not temporal. The temporal form has a prior state before it ("colors used to come from…").
 - **Runtime old/new:** "the old connection drains before the new one accepts" names live objects during handover.
 - **"This PR" in process docs:** documentation about the pull-request workflow (templates, contribution guides) legitimately says "PR"; the ban is on a document adopting one pull request's vantage about the code.
 - **`v1` as protocol or path segment:** `/v1/chat` endpoints and wire-format names are identifiers.
 - **`§N` with a committed owner:** external standards and committed documents that own their section numbering stay citable by section.
+- **Contrastive "actually" and noun "wait":** ordinary English, not hedging; no probe above matches them, so they surface only when the battery is extended with broader hedging patterns.
 - **Runtime "today" and recorded timestamps:** prompts or tests that ask for the current date use natural time. Wording that reaches a model or user still follows the behavior-evidence rule before any edit.
 - **本版本 in Chinese prose:** a legitimate rendering of "this release" for versioned artifacts; the banned indexical is a bare 本版 mirroring "this cut".
 - **Alternatives considered sections:** "rejected" inside an Agent Note's alternatives is the sanctioned home.

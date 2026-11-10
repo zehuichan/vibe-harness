@@ -134,7 +134,7 @@ Keep the consequence of order, a surprising scope rule, or a security boundary. 
 
 **Shorter but worse:** "The adapter normalizes provider errors."
 
-**Decision:** Keep the current sentence unless a link or surrounding contract already lists the failure categories.
+**Decision:** Keep the current sentence unless a link or surrounding contract already lists the failure categories. The shorter version loses the consequence and the distinctions without improving structure.
 
 ## Model-visible text follows ownership
 
@@ -142,15 +142,19 @@ Keep the consequence of order, a surprising scope rule, or a security boundary. 
 
 **Over-detailed:** Copying another module's schema and renderer strings into this module's README.
 
-**Balanced:** Quote stable prompt, result, and error text owned by this module. Link the owner for text another module owns; state only this module's conditions locally.
+**Balanced:** Quote stable prompt, result, and error text owned by this module. Link the generated catalog for schemas and the owner for text another module owns; state only this module's conditions or deltas locally.
 
-Wording that reaches a model is behavior, and exactness belongs at the owner. A prose-only audit may flag suspect wording but must not change it when no owning test exists.
+Wording that reaches a model is behavior, but duplication still drifts. Exactness belongs at the owner.
+
+A prose-only audit may flag suspect wording but must not silently change it when no owning test exists. Leave it unchanged and report the deferral, or widen the authorized change to include the owning test and any required GUI evidence.
 
 ## Generated summaries must stand alone
 
 **Over-trimmed:** "Approval request and policy service," when a generator exports only the first sentence and the owner explains policy order later.
 
-**Balanced:** "Approval service that applies session policy before asking and logs every request and outcome to the requesting session."
+**Over-detailed:** Moving the service's full lifecycle and notification behavior into the extracted sentence.
+
+**Balanced:** "Approval service that applies session policy before asking and logs every request and outcome to the requesting session." Keep detail that the catalog does not need in later sentences.
 
 Know what the generator extracts; that fragment must carry the contract needed in its generated output.
 
@@ -158,8 +162,8 @@ Know what the generator extracts; that fragment must carry the contract needed i
 
 **Over-trimmed:** Omitting a process-lifetime cache that makes configuration changes require a restart.
 
-**Over-detailed:** Listing private helper cleanup and unused test-only accessors.
+**Over-detailed:** Listing private helper cleanup and unused test-only accessors with no caller or maintainer consequence.
 
-**Balanced:** "Provider selection is cached for the process lifetime; installing or repairing a provider requires a restart."
+**Balanced:** "Provider selection is cached for the process lifetime; installing or repairing a provider requires a restart." Keep ordinary cleanup in its TODO or Agent Note.
 
-Retain gaps and constraints that affect use or safe maintenance. A README is not a backlog.
+Retain gaps and non-obvious constraints that affect use or safe maintenance. A README is not a backlog.

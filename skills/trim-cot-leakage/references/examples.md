@@ -10,7 +10,7 @@ Use these examples to identify the governing principle, not as text templates. T
 
 **Fixed:** "Slash input resolves against the visible catalog, per the plain-text-reference decision in `.agents/notes/implemented/architecture/<date>-input-machine.md`."
 
-The ordinal resolves nowhere at HEAD; the decision's name and owning note path do. Name the owning note's path at least once per file, as a link where the surface supports one.
+The ordinal resolves nowhere at HEAD; the decision's name and owning note path do. Name the owning note's path at least once per file, as a link where the surface supports one; later mentions may use the searchable name alone.
 
 ### Decision ordinal without an owner
 
@@ -72,7 +72,7 @@ Both live facts survive in the present tense. The bug's biography belongs to the
 
 **Fixed:** "Badges use the generic projection pair."
 
-Readers who never saw `probe` learn nothing from its absence.
+Readers who never saw `probe` learn nothing from its absence. "Now" contrasting with a deleted past is a version stamp.
 
 ### Fixed regression to counterfactual present
 
@@ -80,13 +80,15 @@ Readers who never saw `probe` learn nothing from its absence.
 
 **Fixed:** "Without the byte-length guard, multibyte labels double-encode."
 
-The regression pin survives as a present-tense counterfactual that names the guard.
+The regression pin survives as a present-tense counterfactual that names the guard; "used to" ties it to repository history instead.
 
 ### Indexical version stamps
 
 **Leaked:** "Batch rendering is synchronous this cut; the async path is roadmap work."
 
 **Fixed:** "Batch rendering is synchronous." (The deferral lives in `TODO(widget-batch):` at the call site.)
+
+"This cut", "v1", and "today" go stale the moment they merge. A historical stage name inside an Agent Note's change-story section ("the first cut shipped X") is safe there; the indexical form never is.
 
 ## Review choreography
 
@@ -110,7 +112,7 @@ The alternatives section is the sanctioned home for losing options; the reviewer
 
 **Fixed:** (deleted; the wrapping order is stated in the function's return documentation.)
 
-State the invariant a maintainer must not break. Correctness claims cite invariants or tests, never people.
+State the invariant a maintainer must not break; "it simply…" answers an objection nobody at HEAD raised. If the invariant is visible in the code, delete the comment instead. Correctness claims cite invariants or tests, never people.
 
 ## Restatement and derivation
 
@@ -122,6 +124,8 @@ State the invariant a maintainer must not break. Correctness claims cite invaria
 
 **Fixed:** "Two round trips must produce exactly four log entries: the projection deduplicates the shared prefix."
 
+Keep only the non-obvious assertion rationale; the walkthrough restates the test body.
+
 ## Hedges and planning residue
 
 **Leaked:** "Probably fine to render eagerly for now."
@@ -131,6 +135,8 @@ State the invariant a maintainer must not break. Correctness claims cite invaria
 **Leaked:** "A 64 KiB buffer should be enough for most cases."
 
 **Fixed:** "64 KiB holds the largest observed frame (48 KiB) with headroom; a larger frame fails loudly in `decode`."
+
+A hedge without an owner is planning residue. Replace a sizing hedge with the actual bound and the failure behavior when it is exceeded.
 
 ## Authoring-language slips
 
@@ -154,27 +160,29 @@ Working-language fragments and session separators are transcription residue. A d
 
 **Keep:** "The cap applies to the complete rendered value, wrappers included (issue #1470 owns the follow-up)."
 
-Issues resolve at HEAD from any surface; "#N owns the follow-up" is the sanctioned home for deferred work in a README.
+An unaided pass tends to delete this, reasoning that issue citations belong in Agent Notes. Issues resolve at HEAD from any surface; "#N owns the follow-up" is the sanctioned home for deferred work in a README. What Agent Notes and postmortems additionally sanction is citing merged pull requests as evidence.
 
 ### Dead name-drops are not "naming the owner"
 
 **Delete:** "Badge renderer over the widget layer (see the widget-rendering RFC)."
 
-The test is resolvability, not form: no committed file answers to "the widget-rendering RFC". Retarget the pointer to a committed owner if one exists; otherwise delete it.
+An unaided pass tends to keep this as naming the owning document by topic. The test is resolvability, not form: no committed file answers to "the widget-rendering RFC". Retarget the pointer to a committed owner if one exists; otherwise delete it.
 
 ### Suppression justifications
 
 **Keep (after fixing):** `// lint-disable-next-line no-non-null-assertion -- the one-element literal guarantees index 0.`
 
-When the stated reason is false, fix the reason; never delete it.
+The justification clause is required prose. When the stated reason is false (for example, it cites a loop guard that does not exist), fix the reason; never delete it.
 
 ### Measured bounds
 
 **Keep:** "Depth cap (measured: 512 nests ≈ 0.15 s synchronous; 4096 blocks the event loop)."
 
+The measurement pins the constant against uninformed retuning, and "measured" identifies data rather than a guess.
+
 ### Runtime old/new and natural time
 
-**Keep:** "The old connection drains before the new one accepts." **Keep:** a prompt asking "What is today's date?" Neither contrasts repository states.
+**Keep:** "The old connection drains before the new one accepts." **Keep:** a prompt asking "What is today's date?" Neither contrasts repository states: "old" and "new" name two live objects during handover, and "today" asks about the runtime clock. Because the prompt reaches a model, any rewrite still requires its owning behavior evidence.
 
 ## Overcorrection traps
 
@@ -186,7 +194,7 @@ Enumerate a passage's propositions before trimming it.
 
 **Overcorrected:** "These direct registrations are sanctioned exceptions."
 
-"Pending migration" is an obligation; "sanctioned" blesses the status quo. Keep the original.
+"Pending migration" is an obligation; "sanctioned" blesses the status quo. The trim inverted the sentence's modality while shortening it; keep the original.
 
 ### Promoting a hypothetical to a shipped feature
 
@@ -202,9 +210,11 @@ Deleting the future marker alone turns a design illustration into a claim that t
 
 **Original:** "The notice narrates the check order; the notice text is also what the doc compiler checks against."
 
+**Overcorrected:** the whole sentence deleted as narration.
+
 **Right:** "The notice text is what the doc compiler checks against."
 
-Delete clauses, not sentences, when propositions share a line.
+Half the sentence was narration; the other half was a load-bearing coupling. Delete clauses, not sentences, when propositions share a line.
 
 ### Dropping the measurement source while keeping the number
 
