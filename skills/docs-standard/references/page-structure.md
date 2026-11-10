@@ -7,12 +7,12 @@ Use this order for authored human-facing pages. Generated artifacts, Agent Notes
 1. Optional YAML metadata when the project uses it.
 2. H1 title.
 3. Language switcher for a bilingual page.
-4. `## Summary`: three to five sentences in one paragraph stating what the reader can do or observe, why the reader would care, the main operating model, and the most important boundary.
-5. `## Table of Contents` for pages with more than about four sections: links to the H2 sections, navigational rather than descriptive.
+4. `## Summary`: three to five sentences in one paragraph stating what the reader can do or observe, why the reader would care, the main operating model, and the most important boundary. A module README Summary stays within 100 words, counted as `wc -w` counts them.
+5. `## Table of Contents`: links to the page's H2 sections, navigational rather than descriptive.
 6. Stable content, ordered from user-facing use to developer-facing design and operational detail.
 7. Optional `## Further Exploration`: three to seven links to adjacent pages, ordered from closest prerequisite to deeper material, each with a short phrase saying what it adds.
 
-Do not force this wrapper around tiny machine-owned files or generated fragments.
+Do not force the Summary and Table of Contents wrapper around tiny machine-owned files, generated fragments, or formats whose executed parser defines another header. State the exception in the format's owner rather than creating invalid output.
 
 ## Section progression
 
@@ -35,7 +35,11 @@ Classify the module by its entry, not its folder: read the manifest and entry ex
 
 ## Summary
 
-Three to five sentences: what a caller can do with the module, who consumes it, the smallest entry point, and the main boundary.
+Three to five sentences and at most 100 words: what a caller can do with the module, who consumes it, the smallest entry point, and the main boundary.
+
+## Table of Contents
+
+Links to the H2 sections below.
 
 ## Use this module
 
@@ -64,7 +68,7 @@ A folder that only groups modules gets a short index README instead: three to fi
 
 ## Folding
 
-On hosts that render HTML in Markdown (GitHub, GitLab), heavy developer detail may sit behind `<details>`/`<summary>` with the section title and anchor kept visible above the fold. Inside the block, put a blank line after `<summary>`, keep every Markdown line at column 0 (indented lines become code blocks), and close with `</details>` after a blank line.
+On hosts that render HTML in Markdown (GitHub, GitLab), fold heavy developer detail behind `<details>`/`<summary>`, keeping the section title and its anchor visible above the fold; fold only the content under the title. Inside the block, put a blank line after `<summary>`, keep every Markdown line at column 0 (indented lines become code blocks), and close with `</details>` after a blank line. Headings, lists, tables, and links inside the fold parse normally and keep their anchors.
 
 ## Small rule files
 
@@ -81,7 +85,7 @@ Use an ASD-STE100-inspired review pass for English prose that an agent, translat
 - Split semicolon chains and long clause chains; keep each paragraph on one topic.
 - Remove unsupported quality adjectives and stacked hedges, preserving every fact and degree of uncertainty.
 
-Treat 20 words for an instruction and 25 for a description as review prompts, not mechanical limits. Keep a longer sentence when a split would hide a condition. Never remove or strengthen `must`, `may`, `never`, timing, exceptions, or numbers to meet a length target.
+Treat 20 words for an instruction and 25 for a description as review prompts, not mechanical limits. Keep a longer sentence when a split would hide a condition. Never remove or strengthen `must`, `may`, `never`, timing, exceptions, numbers, or other contract terms to meet a length target. The [prose standard](../../prose-standard/SKILL.md) owns the complete-proposition rule.
 
 ## Emphasis discipline
 
@@ -89,4 +93,4 @@ Reserve bold for the clause that changes behavior or the comparison that matters
 
 ## Separators
 
-When a long page has distinct major parts, a `-----` rule on its own line with a blank line before and after may separate them. A rule directly after a paragraph parses as a Setext heading.
+Separate the major parts of a long page (front matter, use, developer detail, Further Exploration) with a `-----` rule on its own line, with a blank line before and after it. A rule directly after a paragraph parses as a Setext heading.

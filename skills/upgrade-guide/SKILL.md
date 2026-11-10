@@ -17,7 +17,7 @@ Write a guide only for breaks that someone outside the repository can observe af
 - SDK exports, HTTP, RPC, and other wire messages;
 - published package names and entry points.
 
-Internal APIs whose consumers are all updated in the same change need no guide. A persisted-format change still follows the project's data-migration rules; its guide states only the reader's actions and links that record.
+Internal APIs whose consumers are all updated in the same change need no guide. When the project keeps a separate record for a persisted-format change (a format-change acknowledgement or a migration record), the guide states only the reader's actions and links that record; when it keeps none, the guide itself is the reader-visible migration.
 
 ## Location
 
@@ -35,13 +35,13 @@ While the version is unchanged, the current version directory describes the delt
 
 Start from [the template](references/template.md):
 
-- frontmatter with `kind: upgrade-guide` and a one-sentence `description` naming what breaks;
-- one `#` title, then exactly `## Change` and `## Migration`, in that order;
-- at most 500 words, frontmatter included.
+- frontmatter with exactly `kind: upgrade-guide` and a one-sentence `description` naming what breaks; add a key only together with a check that rejects a guide missing it, then backfill every existing guide;
+- one `#` title, then exactly `## Change` and `## Migration`, in that order, with the translated counterpart using the same two sections in its language;
+- at most 500 words in `guide.md`, frontmatter included.
 
 `Change` states the old and new behavior of the surface and who is affected. `Migration` lists ordered steps that name exact files, keys, commands, or symbols, and states how to confirm the migration worked.
 
-When a guide needs more than 500 words, the extra text belongs elsewhere: link source files instead of restating code, move rationale into an Agent Note (see [agent-notes](../agent-notes/SKILL.md)), and turn repeated mechanical steps into a script or command the guide invokes. Follow [prose-standard](../prose-standard/SKILL.md).
+When a guide needs more than 500 words, the extra text belongs elsewhere: link source files instead of restating code, move rationale into an Agent Note (see [agent-notes](../agent-notes/SKILL.md)), and turn repeated mechanical steps into a script or command the guide invokes. Follow [prose-standard](../prose-standard/SKILL.md). When the profile enables `surfaces.bilingual-docs`, write the counterpart in the same change under the project's translation rules and re-record the pair when the project tracks it.
 
 ## Verify
 
