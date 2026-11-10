@@ -18,10 +18,10 @@ Classify from recorded evidence, not from the eventual fix:
 - **Incomplete lifecycle:** teardown returns before children, workers, streams, servers, or callbacks reach quiescence; later output or mutations appear in another test.
 - **Process-global contamination:** the outcome depends on test order or leaked environment, working directory, fake timers, globals, mocks, locale, or module state.
 - **Load-sensitive synchronization:** a sleep, polling interval, or assumed event-loop turn substitutes for observable readiness or completion.
-- **Platform or entry-path mismatch:** the failure follows an operating system, shell, filesystem rule, source or build mode, or executable entry. Timestamp precision, environment variable case, handle-release timing, and permission semantics differ between Windows and POSIX hosts, so a pass on one says nothing about the other.
+- **Platform or entry-path mismatch:** the failure consistently follows an operating system, shell, filesystem rule, source or build mode, or executable entry. Timestamp precision, environment variable case, handle-release timing, and permission semantics differ between Windows and POSIX hosts, so a pass on one says nothing about the other.
 - **Product concurrency defect:** the test controls its resources, reproduces deterministically with explicit overlap, and exposes a race in shipped behavior.
 - **External-provider transience:** a live API or network boundary owns the failure, and it matches the documented retry policy.
-- **Runner infrastructure:** checkout, dependency download, disk, host process, or runner service fails independently of the test command. Require direct runner evidence. Where a self-hosted pool exposes no host metrics, say so; one signature repeating across unrelated branches on one pool is still evidence of shared-host contention.
+- **Runner infrastructure:** checkout, dependency download, disk, host process, or runner service fails independently of the test command. Require direct runner evidence before assigning this class. Where a self-hosted pool exposes no host metrics, say so and classify from what the logs do carry; one signature repeating across unrelated branches on one pool is still evidence of shared-host contention.
 
 If evidence supports more than one independent fact, report each one. Do not collapse a timeout, signal, exit code, and assertion into one inferred outcome.
 
@@ -37,13 +37,15 @@ Start with the owning test file or test name. Increase concurrency only to the f
 
 Match the active runner configuration, environment, source or build mode, and platform. Do not lower a production timeout or add random load to manufacture a different failure.
 
-Where the signature belongs to a platform the available host cannot run, stop at the last reachable rung and record that limit; then use CI as the reproduction, changing one suspected owner per run so the result stays attributable.
+Where the signature belongs to a platform the available host cannot run, stop at the last reachable rung and record that limit rather than substituting a passing run on another platform; then use CI as the reproduction, changing one suspected owner per run so the result stays attributable.
 
 For a suspected race, replace probabilistic timing with a barrier at the contested transition. For a suspected host collision, prove simultaneous acquisition of the same identifier, or prove that atomic unique allocation removes the conflict.
 
 ## Fix at the owner
 
-When a fix is authorized, fix the component that allocates, publishes readiness, mutates global state, or owns teardown. Do not hide the failure in a snapshot normalizer, retry wrapper, broader timeout, global serialization setting, or weaker assertion. Keep stable fixture data separate from live resource allocation.
+When a fix is authorized, fix the component that allocates, publishes readiness, mutates global state, or owns teardown. Do not hide the failure in a snapshot normalizer, retry wrapper, broader timeout, global serialization setting, or weaker assertion.
+
+Keep stable fixture data separate from live resource allocation. A recorded URL can remain stable while the fixture maps its transport to an operating-system-assigned port; a stable expected path can remain an assertion without becoming a shared writable directory.
 
 ## Close the investigation
 

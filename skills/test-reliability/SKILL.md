@@ -5,7 +5,7 @@ description: Design, review, and diagnose tests and fixtures that can fail nonde
 
 # Reliable tests under real CI topology
 
-Build tests that remain correct under the project's real CI topology, not only when run alone on a quiet workstation. This skill owns isolation and reliability decisions; it does not replace the project's test-tier policy or select every command for a push. It is guidance, not a checklist.
+Build tests that remain correct under the project's real CI topology, not only when run alone on a quiet workstation. This skill owns isolation and reliability decisions; it does not replace the project's test-tier policy or select every command for a push.
 
 ## Read the owning rules
 
@@ -23,7 +23,7 @@ Assume these layers can overlap unless the active configuration proves otherwise
 3. Independent test-runner or check processes in one CI job.
 4. Different CI jobs whose runners share one host.
 
-Process isolation does not isolate host ports, predictable filesystem paths, external services, databases, sockets, or inherited child processes. For every acquired resource, identify its owner, atomic allocation mechanism, observable readiness signal, registered cleanup, and quiescent completion signal.
+Process isolation does not isolate host ports, predictable filesystem paths, external services, databases, sockets, or inherited child processes. A test file that passes only when run alone has a test defect, not an unstable runner. For every acquired resource, identify its owner, atomic allocation mechanism, observable readiness signal, registered cleanup, and quiescent completion signal.
 
 Do not serialize an entire suite because one fixture lacks isolation. Narrow the exclusive scope or change the resource allocation first. A sequential block inside one file cannot protect a host resource from another file, process, job, or runner.
 
@@ -37,7 +37,9 @@ Use the resource owner's allocator instead of checking availability and claiming
 - Use exclusive creation where a path must not already exist.
 - Keep stable recorded identifiers separate from ephemeral transport addresses; translate inside the fixture instead of forcing the live resource to use the recorded value.
 
-Literal paths and URLs used only as parser inputs or expected values are not acquired resources.
+Literal paths and URLs used only as parser inputs or expected values are not acquired resources. Do not rewrite them merely because they look fixed.
+
+Shared fixtures live in a plain support module, never in another test file: importing a test file registers its tests again, which duplicates their work and any real external calls.
 
 ## Contain process-global state
 
@@ -52,18 +54,20 @@ Prefer an injected dependency or instance-local adapter. When mutation is requir
 
 ## Respect platform-owned semantics
 
-When CI runs on Windows and POSIX hosts, a value the operating system owns does not always come back the way a test wrote it.
+Wherever the suite runs on both Windows and POSIX hosts, in CI or on a developer machine, a value the operating system owns does not always come back the way a test wrote it.
 
-- Writing a value back is safe only when the assertion tolerates the write-back failing. Restoring a file's modification time to prove a fingerprint invalidates anyway holds everywhere; restoring it to prove a record stays valid assumes a lossless round trip that NTFS's 100-nanosecond ticks do not give a fractional millisecond. Take the expected value from a fresh read.
-- Windows matches environment variable names case-insensitively, so `http_proxy` and `HTTP_PROXY` are one entry there.
-- Windows releases file handles asynchronously, so a rename or removal needs a bounded retry sized to the observed contention.
+- Writing a value back is safe only when the assertion tolerates the write-back failing. Restoring a file's modification time to prove a fingerprint invalidates anyway holds everywhere; restoring it to prove a record stays valid assumes a lossless round trip that NTFS's 100-nanosecond ticks do not give a fractional millisecond. When the assertion depends on the restoration, take the expected value from a fresh read rather than the remembered one.
+- Windows matches environment variable names case-insensitively, so a fixture seeding `http_proxy` and `HTTP_PROXY` as separate keys holds one entry there.
+- Windows releases file handles asynchronously, so a rename or removal that completes at once on a POSIX host needs a bounded retry sized to the observed contention.
 - Windows has no POSIX permission or signal semantics. A case that depends on them takes an explicit platform skip naming the reason, not an assertion weakened everywhere.
+
+Prefer an observation that holds on every platform. When a case genuinely cannot, exclude it on that platform explicitly.
 
 ## Budget timeouts against the lane
 
-A per-suite or per-case timeout overrides the runner's global timeout instead of yielding to it, so a value below the lane's budget lowers what CI already granted. A suite bound by process creation takes the lane budget; a tighter value carries the reason it is tighter. Raise the hook budget with the test budget, because setup and teardown pay the same contention.
+A per-suite or per-case timeout overrides the runner's global timeout instead of yielding to it, so a value below the lane's budget lowers what CI already granted, and the same literal widens the budget on a host whose default is smaller. A suite bound by process creation takes the lane budget; a tighter value carries the reason it is tighter. Raise the hook budget with the test budget: setup and teardown pay the same contention, so lifting only the case budget moves a contended failure into the after-each hook.
 
-Where a timeout is the subject, keep the outer wait far larger than the timeout under test, or load decides which deadline reports first.
+Where a timeout is the subject, keep the outer wait far larger than the timeout under test. A case proving that a 20 ms deadline fires must not race the harness's own wait, or load decides which deadline reports first.
 
 ## Synchronize on state
 
@@ -85,16 +89,18 @@ Register cleanup immediately after acquisition so assertion failures also releas
 - For a new static or corpus check, temporarily introduce the rejected case and observe the intended failure.
 - For a race, use barriers to prove overlap; repeated execution alone is not a race test.
 - For ports, sockets, shared paths, or subprocesses, run independent test processes concurrently when cross-process isolation is part of the fix.
-- Where a fixture spawns a child with its own deadline, assert that no signal or timeout ended the child before asserting its exit status.
+- Where a fixture spawns a child with its own deadline, assert that no signal or timeout ended the child before asserting its exit status, so a killed child reports as a timeout instead of a status mismatch.
 - Verify external state, events, files, logs, exits, or disposal instead of trusting the component's self-report.
 
 Stress runs supplement a deterministic regression; they do not replace one.
 
 ## Reject flake-masking fixes
 
-Do not present these as root-cause fixes: increasing a timeout without identifying the awaited state; adding retries; making all files serial; swallowing an error or unhandled rejection; weakening an assertion; normalizing away unstable behavior; adding a sleep before cleanup or assertion.
+Do not present these as root-cause fixes for deterministic local tests: increasing a timeout without identifying the awaited state; adding retries; making all files serial; swallowing an error or unhandled rejection; weakening an assertion; normalizing away unstable behavior; adding a sleep before cleanup or assertion.
 
-Retries remain valid for documented transient external-provider tests at the external boundary. Restoring a budget the lane already granted, or sizing a bounded retry to measured contention, is not masking.
+Retries remain valid for documented transient external-provider tests under the project's real-service test policy; keep that exception at the external boundary.
+
+Restoring a budget is not masking. Raising a suite to the lane budget it already had, or sizing a bounded retry to the contention actually measured on the runner, names the awaited work and returns what the lane granted; neither invents headroom around an unexamined wait.
 
 ## Diagnose existing flakes
 
@@ -102,4 +108,4 @@ For an existing probabilistic CI failure, follow [the CI flake diagnosis workflo
 
 ## Validate and report
 
-Run the smallest focused regression for the affected behavior, plus topology-specific evidence only when the change owns that risk: restoration evidence for global mutation, quiescent-teardown evidence for lifecycle or subprocess work, concurrent independent-process evidence for ports, sockets, or shared paths, and a negative control for a new check. Report exact commands and observed results; do not describe retries, skipped tests, or pending CI as passing.
+Run the smallest focused regression for the affected behavior, plus topology-specific evidence only when the change owns that risk: restoration evidence for global mutation, quiescent-teardown evidence for lifecycle or subprocess work, concurrent independent-process evidence for ports, sockets, or shared paths, and a negative control for a new check. Before a push, use pre-push-checks. Report exact commands and observed results; do not describe retries, skipped tests, or pending CI as passing.
