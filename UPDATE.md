@@ -74,6 +74,7 @@ New core skills install on their own. A new optional skill never installs on upg
 
 - **Profile keys.** For each `profile` line, add the key to `.agents/project-profile.md`. Run the command before recording it, and write `none` when the project has no such command. The installer never rewrites the profile.
 - **Seed template changes.** For each CHANGELOG entry that names one, apply it to the repository's copy by hand.
+- **Project-owned references.** The installer never reads `AGENTS.md` outside the managed block, the profile's "Project-specific rules", or project-owned `AGENTS.md` files, so their references go stale when the kit or the project adds, renames, or removes a skill, file, or tool configuration. In each of them, confirm that every link and every backticked repository path resolves, including anchors, and that every `.agents/skills/<name>` it names is installed. Point a reference to a removed project skill at the kit skill that replaced it, or delete it. A rule there that restates the managed block keeps only its project-specific detail.
 - **Conflict markers.** A file with `<<<<<<< local` regions keeps the project's intent and the upstream change together. Remove every marker, then check with `git grep -n -e '<<<<<<< local' -e '>>>>>>> upstream'`.
 
 ## Verify and report
@@ -90,4 +91,5 @@ Report:
 - each conflict and how you resolved it;
 - the profile keys added and the commands that verified them;
 - seed changes applied by hand, and optional skills proposed but not added;
+- stale project-owned references fixed and restatements of the managed block trimmed, by path;
 - the commands run and their results.
