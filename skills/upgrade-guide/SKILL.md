@@ -29,7 +29,7 @@ Internal APIs whose consumers are all updated in the same change need no guide. 
 
 ## Maintenance
 
-While the version is unchanged, the current version directory describes the delta from vT to the current default branch. When a later change touches a surface a guide there covers, update that guide in the same change; delete the guide when the break is reverted. After the version bump, guides in older version directories are frozen, and a new break goes into the new version directory. Never write a guide spanning more than one release.
+While the version is unchanged, the current version directory describes the delta from vT to the current default branch. When a later change touches a surface a guide there covers, update that guide in the same change; delete the guide when the break is reverted. After the version bump, guides in older version directories are frozen, and a new break goes into the new version directory. When a release lands while your pull request is open, move its guides to the new version directory: a guide added under a released version's directory is misplaced unless that version's release branch or tag already contains it. Never write a guide spanning more than one release.
 
 ## Format
 
