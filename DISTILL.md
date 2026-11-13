@@ -85,7 +85,7 @@ Every source path the kit mirrors, in one command. Its output is the auto-sync s
 ```sh
 git -C <source> diff --name-status <recorded>..HEAD -- \
   .agents/skills \
-  packages/preset/agent-preset/skills/agent-experience \
+  packages/preset/agent-preset/skills/dsh-doc/references/tool-design.md \
   AGENTS.md docs/AGENTS.md \
   .agents/notes/README.md .agents/notes/AGENTS.md .agents/notes/implemented/AGENTS.md .agents/notes/archived/AGENTS.md \
   docs/defensive-patterns/README.md docs/defensive-patterns/general.md \
@@ -111,7 +111,7 @@ When the sync record has more than one row, run the command once per distinct re
 | `agent-experience` | `agent-experience` | core |
 | `cordis-styling-nitpicking` | `lifecycle-review` | core |
 | `dsh-archive-agent-notes` | `agent-notes` | core |
-| `dsh-doc` | `docs-standard` | core |
+| `dsh-doc-writing` | `docs-standard` | core |
 | `dsh-create-upgrade-guide` | `upgrade-guide` | core |
 | `dsh-client-ui-ux` | `ui-ux-review` | optional, `surfaces.ui` |
 | `dsh-responsive-ui` | `responsive-ui` | optional, `surfaces.ui` |
@@ -120,7 +120,7 @@ When the sync record has more than one row, run the command once per distinct re
 
 A source skill's `references/`, `templates/`, and `scripts/` directories are part of the pair. A new source reference file is a candidate kit reference file under the same skill; a source reference that was folded back into `SKILL.md` or split out of it is a restructure, which calls for a full read of the pair rather than a diff. A source `templates/` file the kit keeps goes under the kit skill's `references/` (`upgrade-guide/references/template.md` is the precedent), because a directory named `templates/` inside a skill is still copied verbatim and is not a kit template.
 
-`agent-experience/SKILL.md` is a git symlink (`git -C <source> ls-files -s .agents/skills` shows mode `120000`); compare against its target, `packages/preset/agent-preset/skills/agent-experience/SKILL.md`. Check for new symlinks the same way.
+`agent-experience/SKILL.md` keeps only frontmatter and one link to `packages/preset/agent-preset/skills/dsh-doc/references/tool-design.md`, which holds its rules; compare the kit skill against that file. The rest of that shipped `dsh-doc` skill documents the source product and stays out. A source skill that is a git symlink shows mode `120000` in `git -C <source> ls-files -s .agents/skills`; compare against its target.
 
 These source skills stay out, because they encode that project's product or process rather than a reusable workflow: `dsh-official-plugin-artwork` (plugin art), `dsh-translate-docs` (translation gate), `dsh-session-projection` (one subsystem's state model), `dsh-cua-macos-signing` (one product's signing setup), `dsh-pr-description` (one project's description format and AI-usage grading). A source skill that appears after this list was written is reported as a candidate with a one-line verdict; add one only when the request says so, and then as a new optional skill with its own `when`.
 
@@ -137,7 +137,8 @@ List the candidates mechanically: `git -C <source> grep -ohE '\]\((\.\./)+[^)# ]
 | `dsh-pre-push-checks`, `dsh-code-review` | the root `AGENTS.md` sections they link | `pre-push-checks`, `code-review`, and `templates/AGENTS.md.tmpl` |
 | `dsh-code-review`, `dsh-find-simplifications`, `dsh-ci-test-reliability`, `dsh-speed-up-perf` | `docs/defensive-patterns/README.md`, `docs/defensive-patterns/general.md` | `templates/defensive-patterns/`; the source's surface-specific pattern files stay out unless the request names them |
 | `dsh-archive-agent-notes` | `.agents/notes/README.md` and the `AGENTS.md` files under it | `agent-notes` and `templates/agent-notes/` |
-| `dsh-doc` | `docs/AGENTS.md` | `docs-standard` and `templates/docs-AGENTS.md` |
+| `dsh-doc-writing` | `docs/AGENTS.md` | `docs-standard` and `templates/docs-AGENTS.md` |
+| `agent-experience` | `packages/preset/agent-preset/skills/dsh-doc/references/tool-design.md` | `agent-experience` |
 | `dsh-code-review`, `dsh-ci-test-reliability`, `dsh-find-simplifications`, `dsh-speed-up-perf` | `docs/testing.md` | `code-review` ("Mocks and coverage", test strength) and `test-reliability`; its project-specific suites, launchers, and key policy stay out |
 | `dsh-speed-up-perf` | `benchmarks/AGENTS.md` | `perf-evidence`, lane rules |
 
@@ -269,4 +270,4 @@ The source commit up to which each kit file is reconciled: every source change u
 
 | Kit path | Source commit | Date | Mode |
 |---|---|---|---|
-| all mapped skills and templates | `fcc0ad4621` | 2026-11-10 | full audit |
+| all mapped skills and templates | `e8f7b93a34` | 2026-11-13 | auto sync |

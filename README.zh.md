@@ -23,7 +23,7 @@ agent 会克隆套件、检查仓库、询问要包含哪些可选技能、运�
 | 技能 | 用途 |
 |---|---|
 | `vibe-harness-bootstrap` | 安装、升级和移除本套件 |
-| `error-handling` | 类型化失败、处理归属、故障隔离与可操作的报告 |
+| `error-handling` | 类型化失败、错误类与错误码、处理归属、故障隔离与可操作的报告 |
 | `prose-standard` | 哪里必须写注释和文档，以及必须写清什么 |
 | `trim-cot-leakage` | 清除注释和文档中残留的推理过程 |
 | `test-reliability` | 设计和诊断可能非确定性失败的测试 |

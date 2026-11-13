@@ -23,7 +23,7 @@ Core skills are always installed:
 | Skill | Use |
 |---|---|
 | `vibe-harness-bootstrap` | Install, upgrade, and remove the kit |
-| `error-handling` | Typed failures, ownership, containment, and actionable reports |
+| `error-handling` | Typed failures, error classes and codes, ownership, containment, and actionable reports |
 | `prose-standard` | Where comments and docs are required, and what they must state |
 | `trim-cot-leakage` | Remove reasoning-transcript residue from comments and docs |
 | `test-reliability` | Design and diagnose tests that can fail nondeterministically |

@@ -27,7 +27,7 @@ These standing orders apply to every agent session. Project facts (commands, ena
 - Prefer a maintained dependency when it genuinely deletes owned code and tests.
 - Prefer symmetry for parallel values; unexplained asymmetry usually signals a missed extraction.
 - When the profile enables `surfaces.ui`, `ui-ux-review` is the design and review entry point for UI changes; load its references only as needed.
-- Failures are typed and structured, with a handling owner, containment, and a visible, actionable report (`error-handling`). An empty `catch` names the error and the reason, and its `try` holds one statement.
+- Failures are typed and structured, with a handling owner, containment, and a visible, actionable report (`error-handling`). Coded errors and expected tool failures extend the project's coded base error class. An empty `catch` names the error and the reason, and its `try` holds one statement.
 
 ### Prose
 
