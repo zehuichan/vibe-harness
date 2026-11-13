@@ -2,6 +2,17 @@
 
 Each release lists changes that affect installed repositories. Upgrade agents read the entries newer than the `kit.ref` in `.agents/vibe-harness.lock.json`; entries name seed-template changes explicitly because upgrades never rewrite seeds.
 
+## 0.1.8
+
+- Skill text updates synced from the source project. Locally edited copies are three-way merged on upgrade.
+  - `error-handling`: coded errors extend the project's coded base error class, one class per domain with a literal `name` and stable domain-prefixed `UPPER_SNAKE_CASE` codes named for the consumer action, and foreign failures are converted at their owner with the original as `cause`. A new Tool failures section requires a machine `name` and `code` on every expected tool failure and tests that assert them. The new `references/error-codes.md` holds the standard conditions, the code declaration example, the conversion table, and a checklist.
+  - `code-review`: flags an expected tool failure recorded without a machine `name` and `code`.
+  - `upgrade-guide`: when a release lands while a pull request is open, its guides move to the new version directory.
+- Managed templates, rewritten on upgrade:
+  - `AGENTS.md` block: coded errors and expected tool failures extend the project's coded base error class.
+- Seed templates: unchanged; existing installations need no edit.
+- No profile key is added.
+
 ## 0.1.7
 
 - Skill text updates from a full audit against the source project, restoring rules, conditions, and examples lost in earlier distillation. Locally edited copies are three-way merged on upgrade.
