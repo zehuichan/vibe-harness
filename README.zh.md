@@ -45,6 +45,7 @@ agent 会克隆套件、检查仓库、询问要包含哪些可选技能、运�
 | `responsive-ui` | 项目提供面向产品用户的图形界面 |
 | `record-browser-gif` | 项目有 Web 界面，且 PR 适合附带操作录屏 |
 | `stacked-prs` | 托管在 GitHub，且团队以 stack 方式合入相互依赖的 PR |
+| `self-review` | 改动不经 PR 评审，直接进默认分支 |
 
 治理文件：
 

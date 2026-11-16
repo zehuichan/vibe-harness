@@ -45,6 +45,7 @@ Optional skills are proposed from evidence in the repository:
 | `responsive-ui` | The project ships a GUI that product users see |
 | `record-browser-gif` | The project has a web UI and its pull requests benefit from recordings |
 | `stacked-prs` | The host is GitHub and the team lands dependent pull requests as stacks |
+| `self-review` | Changes land on the default branch without pull-request review |
 
 Governance files:
 

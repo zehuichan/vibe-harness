@@ -37,6 +37,7 @@ Cursor and Codex read skills from `.agents/skills/`. Claude Code reads `.claude/
    | `ui-ux-review`, `responsive-ui` | The project ships a GUI that product users see (web, desktop, or mobile) |
    | `record-browser-gif` | The project has a web UI and its pull requests benefit from interaction recordings |
    | `stacked-prs` | The host is GitHub and the team lands dependent pull requests as stacks |
+   | `self-review` | Changes reach the default branch without pull-request review, so the profile's `vcs.review-flow` will be `trunk` |
 
 3. **Dry run.** `PROJECT_NAME` defaults to the directory name of `<repo>`; pass `--var PROJECT_NAME=<name>` when the project has a different name.
 
@@ -50,7 +51,8 @@ Cursor and Codex read skills from `.agents/skills/`. Claude Code reads `.claude/
 
 5. **Fill the project profile.** Open `.agents/project-profile.md` and replace every `TODO(profile)`:
    - Run each candidate command from `<repo>` and record it only if it succeeded; write `none` when the project has no such command. Use the placeholders the profile documents (`<target>`, `<base>`, `<file>`).
-   - Set `vcs.*` from the remote and default branch, and set each `surfaces.*` flag from evidence.
+   - Set `vcs.host`, `vcs.default-branch`, and `vcs.pr-cli` from the remote and default branch, and set each `surfaces.*` flag from evidence.
+   - Set `vcs.review-flow` from how changes reach the default branch: `pull-request` when the host lists merged pull requests (for example `gh pr list --state merged --limit 5`) or a branch rule requires them, `trunk` when commits are pushed to it directly. Ask the user when the history shows both.
    - Complete the "Evidence by surface" table, "Hooks and CI", and "Project-specific rules" from what you found in step 1.
 
 6. **Integrate existing instructions.** Project-specific rules belong in `AGENTS.md` outside the managed block. If `CLAUDE.md` already existed with its own content, propose moving that content into `AGENTS.md` and leaving `CLAUDE.md` as a symlink to `AGENTS.md`; do the same for other instruction files only with the user's agreement. Do not edit inside the managed block to add project rules.

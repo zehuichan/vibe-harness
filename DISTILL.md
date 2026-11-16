@@ -155,6 +155,8 @@ Governance templates, when the request names them or a synced skill depends on t
 
 `vibe-harness-bootstrap` has no source skill. Leave it unless the request is about the installer or `BOOTSTRAP.md`.
 
+`self-review` has no source skill either: the source project lands every change through a reviewed pull request, and this skill supplies the review range, reviewer, fix loop, record, and landing checks for a repository that pushes to its default branch. A sync never edits it from a source diff; the [cross-reference checks](#cross-reference-integrity) keep its table of pull-request steps complete.
+
 ## What to carry over
 
 Read the source skill and the kit skill in full, including `references/`, `templates/`, and `scripts/`. Treat the kit file as the current text. Port a source change only when the rule still holds for a repository that is not the source project.
@@ -182,7 +184,7 @@ A source rule that the kit generalizes into "the project's rules decide" must ha
 
 ## Replacements
 
-Commands become profile keys defined in `templates/project-profile.md.tmpl`. Write "the profile's `commands.focused-test`", not a package-manager script. The keys are `commands.install`, `commands.focused-test`, `commands.full-test`, `commands.coverage`, `commands.typecheck`, `commands.lint`, `commands.format`, `commands.build`, `commands.docs-check`, `commands.e2e`, `commands.bench`, `commands.change-scope`, `vcs.host`, `vcs.default-branch`, `vcs.pr-cli`, `surfaces.ui`, `surfaces.localized-ui`, `surfaces.bilingual-docs`, and `surfaces.public-api`.
+Commands become profile keys defined in `templates/project-profile.md.tmpl`. Write "the profile's `commands.focused-test`", not a package-manager script. The keys are `commands.install`, `commands.focused-test`, `commands.full-test`, `commands.coverage`, `commands.typecheck`, `commands.lint`, `commands.format`, `commands.build`, `commands.docs-check`, `commands.e2e`, `commands.bench`, `commands.change-scope`, `vcs.host`, `vcs.default-branch`, `vcs.pr-cli`, `vcs.review-flow`, `surfaces.ui`, `surfaces.localized-ui`, `surfaces.bilingual-docs`, and `surfaces.public-api`.
 
 Use an existing key when it covers the fact, and check the key's default and description in the template before leaning on it: `commands.change-scope` lists committed paths only, so a skill that needs worktree paths says how to add them. Add a key only when no existing key can say it. A new key goes in the profile template with `TODO(profile)` or a documented default, in the template's Keys section, and in the report. Upgrades never rewrite `.agents/project-profile.md`, so the report must tell the user that existing installations add the key by hand.
 
@@ -200,6 +202,7 @@ Skill bodies stay English. A source example that only works in one natural langu
 - "The project's `AGENTS.md` owns X" is backed by `templates/AGENTS.md.tmpl` stating a default for X, or the skill says "when the project rules permit".
 - Two rules in one skill, or in a skill and the template it cites, do not contradict (for example "never verify links out of an archived note" against "confirm every changed link resolves").
 - A core skill that routes to other skills (`code-review`, `pre-push-checks`) routes to every kit skill the source routes to through its own skill names.
+- A pull-request step that a synced skill or template gains or changes (a place to state a reason, a base to verify, a thread to reply in, a check to inspect, evidence to attach, a reviewer to request) has a row in the "Where pull-request steps go" table of `skills/self-review/SKILL.md`, or the report says why a trunk flow needs none.
 
 ## Audit procedure
 

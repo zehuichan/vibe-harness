@@ -10,7 +10,7 @@ Run relevant local evidence once before a push. The sole ordering exception is a
 ## Inspect the outgoing change
 
 1. Confirm the checkout and branch: `git status --short --branch` and `git rev-parse --show-toplevel`.
-2. Verify the live pull-request base (or stack parent), fetch that ref, and list the committed scope against it with the profile's `commands.change-scope`. Never guess a base. Unless that command already reports the worktree, add `git status --short` for staged, unstaged, and untracked paths. To inspect a commit other than `HEAD`, use `git diff --name-status <base>...<head>`.
+2. Verify the live pull-request base (or stack parent), fetch that ref, and list the committed scope against it with the profile's `commands.change-scope`. Never guess a base. When the profile's `vcs.review-flow` is `trunk`, the base is the fetched remote default branch, and `self-review` owns the review before the push and the CI inspection after it. Unless that command already reports the worktree, add `git status --short` for staged, unstaged, and untracked paths. To inspect a commit other than `HEAD`, use `git diff --name-status <base>...<head>`.
 3. After merging a changed base, rerun the scope listing, reassess which behavior the combined scope can affect, and rerun only the checks the merge invalidated.
 
 ## Select relevant evidence

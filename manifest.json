@@ -21,7 +21,8 @@
     "ui-ux-review": { "tier": "optional", "when": "surfaces.ui" },
     "responsive-ui": { "tier": "optional", "when": "surfaces.ui" },
     "record-browser-gif": { "tier": "optional", "when": "surfaces.ui" },
-    "stacked-prs": { "tier": "optional", "when": "vcs.host == github" }
+    "stacked-prs": { "tier": "optional", "when": "vcs.host == github" },
+    "self-review": { "tier": "optional", "when": "vcs.review-flow == trunk" }
   },
   "templates": [
     { "source": "templates/AGENTS.md.tmpl", "target": "AGENTS.md", "mode": "block" },
