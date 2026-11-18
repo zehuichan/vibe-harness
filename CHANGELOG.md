@@ -2,6 +2,16 @@
 
 Each release lists changes that affect installed repositories. Upgrade agents read the entries newer than the `kit.ref` in `.agents/vibe-harness.lock.json`; entries name seed-template changes explicitly because upgrades never rewrite seeds.
 
+## 0.2.1
+
+- Skill text updates synced from the source project. Locally edited copies are three-way merged on upgrade.
+  - `error-handling`: a new Empty catch clauses section allows an empty `catch` only when every discarded failure leaves the owner's state valid, and requires a `try` with one syntactic statement, a binding that names the expected failure, and a comment that says why discarding it is safe; a clause that accepts only some failures tests `code` or `name` and rethrows the rest. The runtime's cancellation result also covers cancellation thrown by a wrapper around the tool's execution.
+  - `ui-ux-review` (optional): icons follow the library's implemented stroke behavior, fixed-width or scaling, instead of forbidding non-scaling strokes; review case C1 adds the muted submenu value with a primary-colored chevron.
+- Managed templates, rewritten on upgrade:
+  - `docs/defensive-patterns/general.md`: a new pattern keeps plugins on the context their host hands them, never the application's root context, and names the declared mechanism each use replaces. The index lists plugin context access.
+- Seed templates: unchanged; existing installations need no edit.
+- No profile key is added.
+
 ## 0.2.0
 
 - `self-review` (optional): a new skill, proposed when changes land on the default branch without pull-request review (`vcs.review-flow` is `trunk`). It fixes the reviewed range from the HEAD recorded when the task began, including untracked files; chooses review depth by risk (light, standard, or an independent reviewer that does not see the author's reasoning); fixes blockers and in-range simplifications before the report and lists out-of-range improvements; records findings and commands in the completion report; maps each pull-request step in the other skills to its trunk-flow equivalent; and watches CI after a push, fixing forward or reverting with a new commit when the default branch fails. Upgrades never install a new optional skill; add it with `upgrade --add self-review`.
