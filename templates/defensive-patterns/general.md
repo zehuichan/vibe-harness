@@ -99,6 +99,29 @@ globalThis.__appCache = new Map()   // wrong: shared across instances, never rec
 
 The wrong form lets instances overwrite each other, makes reclamation timing unknowable, and leaks state between tests.
 
+## Plugins do not reach through the root context
+
+A plugin reaches services, listeners, and registrations through the context its host hands it, never through the application's root context or container. A service read through the root skips the plugin's dependency declaration, so the plugin can start before the service exists; a listener on the root skips the plugin's scope filtering; and a listener or registration made there is not removed when the plugin is disposed.
+
+The judged condition: name the declared mechanism each use replaces. A service read is a declared dependency; a listener that must observe every scope uses the host's explicit global-listener option; a per-application key or a root-level operation is a service that owns it. The boundary is first-party code, including tests and fixtures. Exception: files that exercise the root contract itself. Existing root reads are remediation work owned by their modules, not a precedent for new code; where the rule is mechanically checkable, a check rejects new reads.
+
+```ts
+// The dependency is declared, and a listener that observes every scope says so.
+export const dependencies = ['loader']
+
+export function apply(ctx: PluginContext, listener: () => void): void {
+  void ctx.loader.ready()
+  ctx.on('job/queued', listener, { global: true })
+}
+```
+
+```ts
+void ctx.root.loader.ready()             // wrong: no declared dependency, no wait
+ctx.root.on('job/queued', listener)      // wrong: escapes scope filtering and plugin disposal
+```
+
+The wrong form starts a plugin before its dependency exists, lets it observe and change state outside its scope, and leaves registrations behind after the plugin is disposed.
+
 ## A business capability owns itself
 
 A business capability lives in its own module and attaches through a registration point: a registry, a slot, a hook chain, or an event subscription. A runtime, controller, manager, or gateway carries generic orchestration: it may hold the registry structure and the disposal lifecycle, while the owning modules write the entries, and it never hardcodes a central table of business cases.

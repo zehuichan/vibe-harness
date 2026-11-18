@@ -14,7 +14,7 @@ Five habits cover most of what follows; each page applies them to one kind of ar
 
 | Changing | Read |
 |---|---|
-| Timing, state representation, shared ownership, capability placement, migrations, performance, disposal, callbacks, subprocesses, filesystem cleanup | [general.md](general.md) |
+| Timing, state representation, shared ownership, plugin context access, capability placement, migrations, performance, disposal, callbacks, subprocesses, filesystem cleanup | [general.md](general.md) |
 
 Add a page per artifact family when the project accumulates rules that only apply there (for example client components, remote APIs, persistence, or package exports), and add its row to the table. Each rule on a page states what must hold, the judged condition, and its boundary, with a correct and a wrong example where the distinction is not obvious from the rule.
 

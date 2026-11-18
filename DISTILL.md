@@ -273,4 +273,4 @@ The source commit up to which each kit file is reconciled: every source change u
 
 | Kit path | Source commit | Date | Mode |
 |---|---|---|---|
-| all mapped skills and templates | `e8f7b93a34` | 2026-11-13 | auto sync |
+| all mapped skills and templates | `ca33fd6843` | 2026-11-17 | auto sync |
