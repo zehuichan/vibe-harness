@@ -25,7 +25,7 @@ A shared view-box change affects every consumer at its own CSS size. Inspect bot
 
 For softness, check CSS dimensions and ancestor transforms, the view box and drawing bounds, stroke versus filled contour, device-pixel placement, then color and opacity. View boxes other than 16 are valid; compare identical artwork before attributing sharpness to inline SVG versus sprites.
 
-Follow the library's implemented stroke behavior. Do not add non-scaling strokes or convert filled contours during an ordinary placement or reuse fix. A change to that rendering behavior belongs to a separately scoped library change with consumer validation; keep intentional silhouettes and knockouts.
+Follow the library's implemented stroke behavior, whether its line artwork keeps a fixed CSS stroke width through non-scaling strokes or scales stroke width with the viewport; intentional fills scale as geometry. Do not change that rendering behavior or convert filled contours during an ordinary placement or reuse fix. A change to that rendering behavior belongs to a separately scoped library change with consumer validation; keep intentional silhouettes and knockouts.
 
 Check straight-stroke edges at the actual device pixel ratio after all scaling: center and width jointly determine pixel coverage, and integer source coordinates alone do not guarantee crisp edges. Round positioned overlays to device pixels only when layout places otherwise crisp artwork between pixels, and preserve anchoring and viewport containment. Keep antialiasing on curves and diagonals; do not globally round paths or use `crispEdges` to hide placement errors. Partial pixel coverage is legitimate for fractional stroke widths.
 

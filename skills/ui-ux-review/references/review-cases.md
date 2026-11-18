@@ -191,7 +191,7 @@ Typography participates in geometry: compare text starts, baselines, and line bo
 
 ### C1: Color emphasis within one information unit
 
-**Scene.** Two search fields each pair a magnifier with a prompt, but one makes the icon darker and the other makes the text darker.
+**Scene.** Two search fields each pair a magnifier with a prompt, but one makes the icon darker and the other makes the text darker. A submenu can make the same mistake by pairing a muted value with a primary-colored chevron.
 
 **Correction and acceptance.** Give the empty-field prompt one foreground role, including its leading icon. Compare computed color, opacity, disabled styling, and background together; two identical color tokens can still differ after an ancestor fades one child. Test empty, typed, focused, disabled, light, and dark variants. Typed query text and an independently actionable clear button need not use the placeholder's weaker role. A submenu value and its trailing chevron also form one value: a muted value with a darker chevron fails the relationship even when the geometry is correct.
 
