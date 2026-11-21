@@ -2,6 +2,16 @@
 
 Each release lists changes that affect installed repositories. Upgrade agents read the entries newer than the `kit.ref` in `.agents/vibe-harness.lock.json`; entries name seed-template changes explicitly because upgrades never rewrite seeds.
 
+## 0.3.0
+
+- `code-style`: a new core skill, installed on upgrade. Its one principle is to put state and ownership into types and structure instead of relying on timing, convention, or defensive code. A table maps each smell to its structure; the sections write state into tagged unions, exhaustiveness checks, distinct absences, and request-to-spec types; write ownership into owner objects, disposers, `finally` blocks, one commit point, and one source per fact; replace defensive checks with validation at boundaries and coded failures; and document at the declaration the obligations a type cannot carry. Twelve review questions close it.
+- Skill text updates. Locally edited copies are three-way merged on upgrade.
+  - `code-review`: lists `code-style` among its sources of truth.
+- Managed templates, rewritten on upgrade:
+  - `AGENTS.md` block: the Design section opens with the `code-style` principle.
+- Seed templates: unchanged; existing installations need no edit.
+- No profile key is added.
+
 ## 0.2.1
 
 - Skill text updates synced from the source project. Locally edited copies are three-way merged on upgrade.
