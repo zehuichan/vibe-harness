@@ -16,6 +16,7 @@ description: Use when reviewing a pull request or local change in this repositor
 - `docs/defensive-patterns/`: rules enforced in review, one page per artifact family; read every page the diff touches.
 - `docs/AGENTS.md` and [docs-standard](../docs-standard/SKILL.md): documentation placement and discipline.
 - [prose-standard](../prose-standard/SKILL.md): required coverage and editorial judgment for comments, docs, prompts, and visible strings.
+- [code-style](../code-style/SKILL.md): state and ownership written into types and structure rather than timing, convention, or defensive code; its review questions name the structure each smell needs.
 - [error-handling](../error-handling/SKILL.md): failure classification, error classes and codes, tool failures, ownership, containment, guarantees, and reports.
 - [lifecycle-review](../lifecycle-review/SKILL.md): singleton state, unreversed effects, and cleanup ordering in plugins, services, and components.
 - [test-reliability](../test-reliability/SKILL.md): isolation and regression proof for resource-owning, asynchronous, or flaky tests.

@@ -18,6 +18,7 @@
     "agent-notes": { "tier": "core" },
     "docs-standard": { "tier": "core" },
     "upgrade-guide": { "tier": "core" },
+    "code-style": { "tier": "core" },
     "ui-ux-review": { "tier": "optional", "when": "surfaces.ui" },
     "responsive-ui": { "tier": "optional", "when": "surfaces.ui" },
     "record-browser-gif": { "tier": "optional", "when": "surfaces.ui" },

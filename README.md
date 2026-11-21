@@ -36,6 +36,7 @@ Core skills are always installed:
 | `agent-notes` | Record and maintain durable design decisions |
 | `docs-standard` | Structure, review, and fact-check documentation |
 | `upgrade-guide` | Document externally perceptible breaking changes |
+| `code-style` | Put state and ownership into types and structure instead of relying on timing, convention, or defensive code |
 
 Optional skills are proposed from evidence in the repository:
 

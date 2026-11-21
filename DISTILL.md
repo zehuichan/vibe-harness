@@ -155,6 +155,8 @@ Governance templates, when the request names them or a synced skill depends on t
 
 `vibe-harness-bootstrap` has no source skill. Leave it unless the request is about the installer or `BOOTSTRAP.md`.
 
+`code-style` has no source skill: it is distilled from the source project's code rather than its `.agents/skills/`, and a sync never edits it from a source skill diff. A full audit may compare its rules against the source code and the source `AGENTS.md` conventions and report drift.
+
 `self-review` has no source skill either: the source project lands every change through a reviewed pull request, and this skill supplies the review range, reviewer, fix loop, record, and landing checks for a repository that pushes to its default branch. A sync never edits it from a source diff; the [cross-reference checks](#cross-reference-integrity) keep its table of pull-request steps complete.
 
 ## What to carry over
@@ -274,3 +276,4 @@ The source commit up to which each kit file is reconciled: every source change u
 | Kit path | Source commit | Date | Mode |
 |---|---|---|---|
 | all mapped skills and templates | `ca33fd6843` | 2026-11-17 | auto sync |
+| `skills/code-style/` | `2e39e70496` | 2026-11-21 | distilled from source code |

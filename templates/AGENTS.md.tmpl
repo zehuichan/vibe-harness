@@ -19,6 +19,7 @@ These standing orders apply to every agent session. Project facts (commands, ena
 
 ### Design
 
+- Put state and ownership into types and structure instead of relying on timing, convention, or defensive code (`code-style`).
 - Explicit beats implicit at module and package boundaries. Defaulting is an explicit resolve step owned by the implementation, never a hidden fallback inside the operation.
 - Deployment-varying choices are validated configuration, not hardcoded constants or test hooks. Protocol constants, external specifications, and security invariants stay fixed.
 - Misconfiguration fails loudly at load when it is self-contained, otherwise at the earliest point where it can be resolved. Never silently skip a missing referent.
